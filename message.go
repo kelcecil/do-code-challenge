@@ -8,6 +8,14 @@ type Message struct {
 	PackageDependencies []string
 }
 
+func NewMessage(cmd string, pkgName string, pkgDeps []string) *Message {
+	return &Message{
+		Command:             cmd,
+		PackageName:         pkgName,
+		PackageDependencies: pkgDeps,
+	}
+}
+
 func (left *Message) Equals(right *Message) bool {
 	if left == nil || right == nil {
 		return false

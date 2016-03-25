@@ -3,16 +3,8 @@ package main
 import "testing"
 
 func TestMessagesAreEqual(t *testing.T) {
-	left := &Message{
-		Command:             "INDEX",
-		PackageName:         "glide",
-		PackageDependencies: []string{"golang", "git", "hg"},
-	}
-	right := &Message{
-		Command:             "INDEX",
-		PackageName:         "glide",
-		PackageDependencies: []string{"git", "hg", "golang"},
-	}
+	left := NewMessage("INDEX", "glide", []string{"golang", "git", "hg"})
+	right := NewMessage("INDEX", "glide", []string{"git", "hg", "golang"})
 
 	if !left.Equals(right) {
 		t.Error("Messages that should be equal are not equal.")
