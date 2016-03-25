@@ -28,9 +28,7 @@ func TestSimplePackageFetch(t *testing.T) {
 
 func TestInsertNewPackage(t *testing.T) {
 	recordSet := createNewPackageSetWithData()
-	recordSet.InsertRecord(&Record{
-		PackageName: "golang",
-	})
+	recordSet.InsertPackage("golang")
 	count := 0
 	records := recordSet.Items()
 	for i := range records {
@@ -83,9 +81,7 @@ func TestFindMixOfDependencies(t *testing.T) {
 
 func TestInsertDuplicatePackage(t *testing.T) {
 	recordSet := createNewPackageSetWithData()
-	recordSet.InsertRecord(&Record{
-		PackageName: "golang",
-	})
+	recordSet.InsertPackage("golang")
 	count := 0
 	records := recordSet.Items()
 	for i := range records {

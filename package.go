@@ -77,29 +77,6 @@ func (rs *RecordSet) findRecord(recordName string) *Record {
 	return nil
 }
 
-func (rs *RecordSet) InsertRecords(newRecords ...*Record) (errs []error) {
-	for i := range newRecords {
-		err := rs.InsertRecord(newRecords[i])
-		if err != nil {
-			errs = append(errs, err)
-		}
-	}
-	return errs
-}
-
-func (rs *RecordSet) InsertRecord(newRecord *Record) error {
-	if rs == nil {
-		return nil
-	}
-
-	rs.ReadWriteLock.Lock()
-	if rs.findRecord(newRecord.PackageName) == nil {
-		rs.Records = append(rs.Records, newRecord)
-	}
-	rs.ReadWriteLock.Unlock()
-	return nil
-}
-
 func (rs *RecordSet) InsertPackage(pkgName string, dependencies ...string) error {
 	if rs == nil {
 		return nil
