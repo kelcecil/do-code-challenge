@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"sort"
 	"sync"
 )
@@ -8,7 +9,12 @@ import (
 type Record struct {
 	PackageName  string
 	Dependencies []*Record
+	DependedOn   []*Record
 }
+
+var (
+	DEPENDENCY_NOT_AVAILABLE = errors.New("Dependency is not available")
+)
 
 func NewRecord(name string, records ...*Record) *Record {
 	return &Record{
@@ -71,19 +77,58 @@ func (rs *RecordSet) findRecord(recordName string) *Record {
 	return nil
 }
 
-func (rs *RecordSet) InsertRecord(newRecords ...*Record) error {
+func (rs *RecordSet) InsertRecords(newRecords ...*Record) (errs []error) {
+	for i := range newRecords {
+		err := rs.InsertRecord(newRecords[i])
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errs
+}
+
+func (rs *RecordSet) InsertRecord(newRecord *Record) error {
 	if rs == nil {
 		return nil
 	}
 
 	rs.ReadWriteLock.Lock()
-	for i := range newRecords {
-		if rs.findRecord(newRecords[i].PackageName) == nil {
-			rs.Records = append(rs.Records, newRecords[i])
-		}
+	if rs.findRecord(newRecord.PackageName) == nil {
+		rs.Records = append(rs.Records, newRecord)
 	}
 	rs.ReadWriteLock.Unlock()
 	return nil
+}
+
+func (rs *RecordSet) InsertPackage(pkgName string, dependencies ...string) error {
+	if rs == nil {
+		return nil
+	}
+
+	rs.ReadWriteLock.Lock()
+	depPackages, ok := rs.FindRequiredDependencies(dependencies...)
+	if !ok {
+		return DEPENDENCY_NOT_AVAILABLE
+	}
+	if rs.findRecord(pkgName) == nil {
+		newRecord := NewRecord(pkgName, depPackages...)
+		rs.Records = append(rs.Records, newRecord)
+	}
+	rs.ReadWriteLock.Unlock()
+	return nil
+}
+
+func (rs *RecordSet) FindRequiredDependencies(dependencies ...string) (foundDependencies []*Record, noMissingDeps bool) {
+	noMissingDeps = true
+	for i := range dependencies {
+		record := rs.findRecord(dependencies[i])
+		if record != nil {
+			foundDependencies = append(foundDependencies, record)
+		} else {
+			noMissingDeps = false
+		}
+	}
+	return foundDependencies, noMissingDeps
 }
 
 func (rs *RecordSet) Len() int {

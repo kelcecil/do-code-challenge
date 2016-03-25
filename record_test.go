@@ -26,6 +26,61 @@ func TestSimpleRecordFetch(t *testing.T) {
 	}
 }
 
+func TestInsertNewPackage(t *testing.T) {
+	recordSet := createNewRecordSetWithData()
+	recordSet.InsertRecord(&Record{
+		PackageName: "golang",
+	})
+	count := 0
+	records := recordSet.Items()
+	for i := range records {
+		if records[i].PackageName == "golang" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Error("Duplicate records should not be possible.")
+	}
+}
+
+func TestFindKnownInsertedDependencies(t *testing.T) {
+	recordSet := createNewRecordSetWithData()
+
+	records, ok := recordSet.FindRequiredDependencies("golo", "homebrew")
+	if len(records) != 2 || !ok {
+		t.Errorf("Expected to find 2 dependencies and ok = true; Received %v dependencies and ok = %v", len(records), ok)
+	}
+	expectedDepOne := records[0].PackageName
+	expectedDepTwo := records[1].PackageName
+	if expectedDepOne != "golo" || expectedDepTwo != "homebrew" {
+		t.Errorf("Expected golo and homebrew deps; Received %v and %v", expectedDepOne, expectedDepTwo)
+	}
+}
+
+func TestFindKnownNotInsertedDependencies(t *testing.T) {
+	recordSet := createNewRecordSetWithData()
+
+	records, ok := recordSet.FindRequiredDependencies("java", "fish")
+	recordCount := len(records)
+	if recordCount != 0 || ok {
+		t.Errorf("Expected to find 0 dependencies and ok = false; Received %v dependencies and ok = %v", recordCount, ok)
+	}
+}
+
+func TestFindMixOfDependencies(t *testing.T) {
+	recordSet := createNewRecordSetWithData()
+
+	records, ok := recordSet.FindRequiredDependencies("golo", "fish")
+	recordCount := len(records)
+	if recordCount != 1 || ok {
+		t.Errorf("Expected to find 1 dependencies and ok = false; Received %v dependencies and ok = %v", recordCount, ok)
+	}
+	expectedDep := records[0].PackageName
+	if expectedDep != "golo" {
+		t.Errorf("Expected golo deps; Received %v", expectedDep)
+	}
+}
+
 func TestInsertDuplicateRecord(t *testing.T) {
 	recordSet := createNewRecordSetWithData()
 	recordSet.InsertRecord(&Record{
@@ -65,6 +120,6 @@ func createNewRecordSetWithData() *RecordSet {
 	sdlRecord := NewRecord("sdl")
 
 	recordSet := NewRecordSet()
-	recordSet.InsertRecord(golangRecord, homebrewRecord, goloRecord, sdlRecord)
+	recordSet.InsertRecords(golangRecord, homebrewRecord, goloRecord, sdlRecord)
 	return recordSet
 }
