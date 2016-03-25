@@ -46,18 +46,29 @@ func (rs *RecordSet) FetchRecords(recordNames ...string) (records []*Record) {
 	}
 
 	rs.ReadWriteLock.RLock()
-	recordsInSet := rs.Items()
 	for i := range recordNames {
-		candidateIndice := sort.Search(len(rs.Records), func(j int) bool {
-			return recordsInSet[j].PackageName >= recordNames[i]
-		})
-		candidateRecord := recordsInSet[candidateIndice]
-		if candidateRecord.PackageName == recordNames[i] {
-			records = append(records, candidateRecord)
+		record := rs.findRecord(recordNames[i])
+		if record != nil {
+			records = append(records, record)
 		}
 	}
 	rs.ReadWriteLock.RUnlock()
 	return records
+}
+
+func (rs *RecordSet) findRecord(recordName string) *Record {
+	recordsInSet := rs.Items()
+	candidateIndice := sort.Search(len(recordsInSet), func(i int) bool {
+		return recordsInSet[i].PackageName >= recordName
+	})
+	if candidateIndice >= len(recordsInSet) {
+		return nil
+	}
+	candidateRecord := recordsInSet[candidateIndice]
+	if candidateRecord.PackageName == recordName {
+		return candidateRecord
+	}
+	return nil
 }
 
 func (rs *RecordSet) InsertRecord(newRecords ...*Record) error {
@@ -67,7 +78,9 @@ func (rs *RecordSet) InsertRecord(newRecords ...*Record) error {
 
 	rs.ReadWriteLock.Lock()
 	for i := range newRecords {
-		rs.Records = append(rs.Records, newRecords[i])
+		if rs.findRecord(newRecords[i].PackageName) == nil {
+			rs.Records = append(rs.Records, newRecords[i])
+		}
 	}
 	rs.ReadWriteLock.Unlock()
 	return nil
