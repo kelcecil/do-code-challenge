@@ -2,104 +2,104 @@ package main
 
 import "testing"
 
-func TestSimplePackageSort(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
+func TestSimplePackagesort(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
 
-	records := recordSet.Items()
+	Packages := packageSet.Items()
 
-	if records[0].PackageName != "golang" && records[1].PackageName != "homebrew" {
-		t.Errorf("Packages in RecordSet are not sorted in alphabetical order.")
+	if Packages[0].PackageName != "golang" && Packages[1].PackageName != "homebrew" {
+		t.Errorf("Packages in packageSet are not sorted in alphabetical order.")
 	}
 }
 
 func TestSimplePackageFetch(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
+	packageSet := createNewPackageSetWithData()
 
-	fetchedRecord := recordSet.FetchRecords("homebrew")
-	if len(fetchedRecord) != 1 || fetchedRecord[0].PackageName != "homebrew" {
-		t.Error("Fetching a single record failed.")
+	fetchedpackage := packageSet.FetchPackages("homebrew")
+	if len(fetchedpackage) != 1 || fetchedpackage[0].PackageName != "homebrew" {
+		t.Error("Fetching a single package failed.")
 	}
 
-	fetchedRecord = recordSet.FetchRecords("golang", "homebrew")
-	if len(fetchedRecord) != 2 || fetchedRecord[0].PackageName != "golang" {
-		t.Errorf("Fetching multiple records at once failed.")
+	fetchedpackage = packageSet.FetchPackages("golang", "homebrew")
+	if len(fetchedpackage) != 2 || fetchedpackage[0].PackageName != "golang" {
+		t.Errorf("Fetching multiple Packages at once failed.")
 	}
 }
 
 func TestInsertNewPackage(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
-	recordSet.InsertPackage("golang")
+	packageSet := createNewPackageSetWithData()
+	packageSet.InsertPackage("golang")
 	count := 0
-	records := recordSet.Items()
-	for i := range records {
-		if records[i].PackageName == "golang" {
+	Packages := packageSet.Items()
+	for i := range Packages {
+		if Packages[i].PackageName == "golang" {
 			count++
 		}
 	}
 	if count != 1 {
-		t.Error("Duplicate records should not be possible.")
+		t.Error("Duplicate Packages should not be possible.")
 	}
 }
 
 func TestFindKnownInsertedDependencies(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
+	packageSet := createNewPackageSetWithData()
 
-	records, ok := recordSet.FindRequiredDependencies("golo", "homebrew")
-	if len(records) != 2 || !ok {
-		t.Errorf("Expected to find 2 dependencies and ok = true; Received %v dependencies and ok = %v", len(records), ok)
+	Packages, ok := packageSet.FindRequiredDependencies("golo", "homebrew")
+	if len(Packages) != 2 || !ok {
+		t.Errorf("Expected to find 2 dependencies and ok = true; Received %v dependencies and ok = %v", len(Packages), ok)
 	}
-	expectedDepOne := records[0].PackageName
-	expectedDepTwo := records[1].PackageName
+	expectedDepOne := Packages[0].PackageName
+	expectedDepTwo := Packages[1].PackageName
 	if expectedDepOne != "golo" || expectedDepTwo != "homebrew" {
 		t.Errorf("Expected golo and homebrew deps; Received %v and %v", expectedDepOne, expectedDepTwo)
 	}
 }
 
 func TestFindKnownNotInsertedDependencies(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
+	packageSet := createNewPackageSetWithData()
 
-	records, ok := recordSet.FindRequiredDependencies("java", "fish")
-	recordCount := len(records)
-	if recordCount != 0 || ok {
-		t.Errorf("Expected to find 0 dependencies and ok = false; Received %v dependencies and ok = %v", recordCount, ok)
+	Packages, ok := packageSet.FindRequiredDependencies("java", "fish")
+	packageCount := len(Packages)
+	if packageCount != 0 || ok {
+		t.Errorf("Expected to find 0 dependencies and ok = false; Received %v dependencies and ok = %v", packageCount, ok)
 	}
 }
 
 func TestFindMixOfDependencies(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
+	packageSet := createNewPackageSetWithData()
 
-	records, ok := recordSet.FindRequiredDependencies("golo", "fish")
-	recordCount := len(records)
-	if recordCount != 1 || ok {
-		t.Errorf("Expected to find 1 dependencies and ok = false; Received %v dependencies and ok = %v", recordCount, ok)
+	Packages, ok := packageSet.FindRequiredDependencies("golo", "fish")
+	packageCount := len(Packages)
+	if packageCount != 1 || ok {
+		t.Errorf("Expected to find 1 dependencies and ok = false; Received %v dependencies and ok = %v", packageCount, ok)
 	}
-	expectedDep := records[0].PackageName
+	expectedDep := Packages[0].PackageName
 	if expectedDep != "golo" {
 		t.Errorf("Expected golo deps; Received %v", expectedDep)
 	}
 }
 
 func TestInsertDuplicatePackage(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
-	recordSet.InsertPackage("golang")
+	packageSet := createNewPackageSetWithData()
+	packageSet.InsertPackage("golang")
 	count := 0
-	records := recordSet.Items()
-	for i := range records {
-		if records[i].PackageName == "golang" {
+	Packages := packageSet.Items()
+	for i := range Packages {
+		if Packages[i].PackageName == "golang" {
 			count++
 		}
 	}
 	if count != 1 {
-		t.Error("Duplicate records should not be possible.")
+		t.Error("Duplicate Packages should not be possible.")
 	}
 }
 
 func TestFetchNonExistentPackage(t *testing.T) {
-	recordSet := createNewPackageSetWithData()
+	packageSet := createNewPackageSetWithData()
 
-	fetchedRecord := recordSet.FetchRecords("harveyRabbit")
-	if len(fetchedRecord) != 0 {
-		t.Errorf("A record was fetched that should not exist.")
+	fetchedpackage := packageSet.FetchPackages("harveyRabbit")
+	if len(fetchedpackage) != 0 {
+		t.Errorf("A package was fetched that should not exist.")
 	}
 }
 
@@ -109,12 +109,12 @@ func BenchmarkInsertPackages(b *testing.B) {
 	}
 }
 
-func createNewPackageSetWithData() *RecordSet {
-	packages := []string{"homebrew", "golang", "golo", "sdl"}
+func createNewPackageSetWithData() *PackageSet {
+	Packages := []string{"homebrew", "golang", "golo", "sdl"}
 
-	recordSet := NewRecordSet()
-	for i := range packages {
-		recordSet.InsertPackage(packages[i])
+	packageSet := NewPackageSet()
+	for i := range Packages {
+		packageSet.InsertPackage(Packages[i])
 	}
-	return recordSet
+	return packageSet
 }
