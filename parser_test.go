@@ -43,6 +43,15 @@ func TestSampleFullMessages(t *testing.T) {
 	testMessage(sampleFour, messageFour, "QUERY message failed.")
 }
 
+func BenchmarkParseMessage(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ParseMessage(sampleOne)
+		ParseMessage(sampleTwo)
+		ParseMessage(sampleThree)
+		ParseMessage(sampleFour)
+	}
+}
+
 func TestSampleBrokenMessages(t *testing.T) {
 	testMessage := func(sample string, message *Message, failureMessage string) {
 		parsedMessage, err := ParseMessage(sample)
