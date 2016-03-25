@@ -41,6 +41,51 @@ func TestInsertNewPackage(t *testing.T) {
 	}
 }
 
+func TestInsertNewPackageWithKnownGoodDependencies(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	err := packageSet.InsertPackage("glide", "golang", "homebrew")
+	if err != nil {
+		t.Errorf("Error encountered when inserting with known good deps; Message: %v", err.Error())
+	}
+	newPackages := packageSet.FetchPackages("glide")
+
+	packageCount := len(newPackages)
+	if packageCount != 1 {
+		t.Errorf("Expected one package returned; Got %v", packageCount)
+	}
+
+	packageName := newPackages[0].PackageName
+	if packageName != "glide" {
+		t.Errorf("Expected package to be named glide; Got %v", packageName)
+	}
+
+	lengthOfDeps := len(newPackages[0].Dependencies)
+	if lengthOfDeps != 2 {
+		t.Errorf("Expected two dependencies to be returned; Got %v", lengthOfDeps)
+	}
+
+	dependencyOneName := newPackages[0].Dependencies[0].PackageName
+	dependencyTwoName := newPackages[0].Dependencies[1].PackageName
+	depNamesMatch := dependencyOneName == "golang" &&
+		dependencyTwoName == "homebrew"
+
+	if !depNamesMatch {
+		t.Errorf("Expected golang and homebrew for dependency names; Got %v and %v",
+			dependencyOneName, dependencyTwoName)
+	}
+}
+
+func TestInsertNewPackageWithKnownBadDependencies(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	err := packageSet.InsertPackage("glide", "golang", "left-pad")
+	if err == nil {
+		t.Errorf("Inserting with known bad deps should not have happened")
+	}
+	if err != DEPENDENCY_NOT_AVAILABLE {
+		t.Errorf("Expected: DEPENDENCY_NOT_AVAILABLE error; Got: %v", err)
+	}
+}
+
 func TestFindKnownInsertedDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
