@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 var (
 	sampleOne  string   = "INDEX|cloog|gmp,isl,pkg-config\n"
@@ -16,11 +19,15 @@ var (
 	messageFour *Message = NewMessage("QUERY", "cloog", []string{})
 )
 
-func TestSampleMessages(t *testing.T) {
+func TestSampleFullMessages(t *testing.T) {
 	testMessage := func(sample string, message *Message, failureMessage string) {
-		parsedMessage := ParseMessage(sample)
+		parsedMessage, err := ParseMessage(sample)
+		if err != nil {
+			t.Errorf("Parsing of message %v failed because: %v", sample, err.Error())
+		}
 		if !message.Equals(parsedMessage) {
-			t.Error(failureMessage)
+			message := fmt.Sprintf("%v -- %v", failureMessage, parsedMessage.String())
+			t.Errorf(message)
 		}
 	}
 
