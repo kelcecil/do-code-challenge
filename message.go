@@ -1,6 +1,9 @@
 package main
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 type Message struct {
 	Command             string
@@ -14,6 +17,14 @@ func NewMessage(cmd string, pkgName string, pkgDeps []string) *Message {
 		PackageName:         pkgName,
 		PackageDependencies: pkgDeps,
 	}
+}
+
+func (message *Message) String() string {
+	if message == nil {
+		return ""
+	}
+	return fmt.Sprintf("Command: %v, PackageName: %v, PackageDependencies %v",
+		message.Command, message.PackageName, message.PackageDependencies)
 }
 
 func (left *Message) Equals(right *Message) bool {
