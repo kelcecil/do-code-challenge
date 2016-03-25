@@ -2,8 +2,8 @@ package main
 
 import "testing"
 
-func TestSimpleRecordSort(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+func TestSimplePackageSort(t *testing.T) {
+	recordSet := createNewPackageSetWithData()
 
 	records := recordSet.Items()
 
@@ -12,8 +12,8 @@ func TestSimpleRecordSort(t *testing.T) {
 	}
 }
 
-func TestSimpleRecordFetch(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+func TestSimplePackageFetch(t *testing.T) {
+	recordSet := createNewPackageSetWithData()
 
 	fetchedRecord := recordSet.FetchRecords("homebrew")
 	if len(fetchedRecord) != 1 || fetchedRecord[0].PackageName != "homebrew" {
@@ -27,7 +27,7 @@ func TestSimpleRecordFetch(t *testing.T) {
 }
 
 func TestInsertNewPackage(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+	recordSet := createNewPackageSetWithData()
 	recordSet.InsertRecord(&Record{
 		PackageName: "golang",
 	})
@@ -44,7 +44,7 @@ func TestInsertNewPackage(t *testing.T) {
 }
 
 func TestFindKnownInsertedDependencies(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+	recordSet := createNewPackageSetWithData()
 
 	records, ok := recordSet.FindRequiredDependencies("golo", "homebrew")
 	if len(records) != 2 || !ok {
@@ -58,7 +58,7 @@ func TestFindKnownInsertedDependencies(t *testing.T) {
 }
 
 func TestFindKnownNotInsertedDependencies(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+	recordSet := createNewPackageSetWithData()
 
 	records, ok := recordSet.FindRequiredDependencies("java", "fish")
 	recordCount := len(records)
@@ -68,7 +68,7 @@ func TestFindKnownNotInsertedDependencies(t *testing.T) {
 }
 
 func TestFindMixOfDependencies(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+	recordSet := createNewPackageSetWithData()
 
 	records, ok := recordSet.FindRequiredDependencies("golo", "fish")
 	recordCount := len(records)
@@ -81,8 +81,8 @@ func TestFindMixOfDependencies(t *testing.T) {
 	}
 }
 
-func TestInsertDuplicateRecord(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+func TestInsertDuplicatePackage(t *testing.T) {
+	recordSet := createNewPackageSetWithData()
 	recordSet.InsertRecord(&Record{
 		PackageName: "golang",
 	})
@@ -98,8 +98,8 @@ func TestInsertDuplicateRecord(t *testing.T) {
 	}
 }
 
-func TestFetchNonExistentRecord(t *testing.T) {
-	recordSet := createNewRecordSetWithData()
+func TestFetchNonExistentPackage(t *testing.T) {
+	recordSet := createNewPackageSetWithData()
 
 	fetchedRecord := recordSet.FetchRecords("harveyRabbit")
 	if len(fetchedRecord) != 0 {
@@ -107,19 +107,18 @@ func TestFetchNonExistentRecord(t *testing.T) {
 	}
 }
 
-func BenchmarkInsertRecords(b *testing.B) {
+func BenchmarkInsertPackages(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		createNewRecordSetWithData()
+		createNewPackageSetWithData()
 	}
 }
 
-func createNewRecordSetWithData() *RecordSet {
-	homebrewRecord := NewRecord("homebrew")
-	golangRecord := NewRecord("golang")
-	goloRecord := NewRecord("golo")
-	sdlRecord := NewRecord("sdl")
+func createNewPackageSetWithData() *RecordSet {
+	packages := []string{"homebrew", "golang", "golo", "sdl"}
 
 	recordSet := NewRecordSet()
-	recordSet.InsertRecords(golangRecord, homebrewRecord, goloRecord, sdlRecord)
+	for i := range packages {
+		recordSet.InsertPackage(packages[i])
+	}
 	return recordSet
 }
