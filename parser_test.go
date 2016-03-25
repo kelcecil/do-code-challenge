@@ -17,6 +17,12 @@ var (
 
 	sampleFour  string   = "QUERY|cloog|\n"
 	messageFour *Message = NewMessage("QUERY", "cloog", []string{})
+
+	brokenSampleOne  string   = "INDEX|cloog|bloob|gmp,isl,pkg-config\n"
+	brokenMessageOne *Message = NewMessage("INDEX", "cloog", []string{"gmp", "isl", "pkg-config"})
+
+	brokenSampleTwo  string   = "INDEX|cloog,apples|gmp,isl,pkg-config\n"
+	brokenMessageTwo *Message = NewMessage("INDEX", "cloog", []string{"gmp", "isl", "pkg-config"})
 )
 
 func TestSampleFullMessages(t *testing.T) {
@@ -35,4 +41,19 @@ func TestSampleFullMessages(t *testing.T) {
 	testMessage(sampleTwo, messageTwo, "INDEX message without dependencies failed.")
 	testMessage(sampleThree, messageThree, "REMOVE message failed.")
 	testMessage(sampleFour, messageFour, "QUERY message failed.")
+}
+
+func TestSampleBrokenMessages(t *testing.T) {
+	testMessage := func(sample string, message *Message, failureMessage string) {
+		parsedMessage, err := ParseMessage(sample)
+		if err != nil {
+			t.Errorf("Parsing of message %v failed because: %v", sample, err.Error())
+		}
+		if !message.Equals(parsedMessage) {
+			message := fmt.Sprintf("%v -- %v", failureMessage, parsedMessage.String())
+			t.Errorf(message)
+		}
+	}
+
+	testMessage(brokenSampleOne, brokenMessageOne, "INDEX message with extra bars failed.")
 }
