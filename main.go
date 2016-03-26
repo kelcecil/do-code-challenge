@@ -1,5 +1,6 @@
 package main
 
 func main() {
-	StartServer()
+	quit := make(chan bool)
+	StartServer(quit)
 }

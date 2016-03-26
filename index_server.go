@@ -11,9 +11,10 @@ var (
 	packages *PackageSet = NewPackageSet()
 )
 
-func StartServer() {
+func StartServer(ready chan bool) {
 	log.Print("Starting server")
-	msgRouter := make(chan *Message, 0)
+
+	msgRouter := make(chan *Message, 500)
 	go MessageRouter(msgRouter)
 
 	listener, err := net.Listen("tcp", ":8080")
@@ -21,13 +22,26 @@ func StartServer() {
 		panic(err)
 	}
 
+	ready <- true
+
 	for {
+		select {
+		case <-ready:
+			listener.Close()
+			return
+		default:
+		}
+
+		log.Print("Waiting for connection")
 		connection, err := listener.Accept()
+
 		log.Print("Accepted connection")
 		if err != nil {
 			panic(err)
 		}
+
 		go HandleConnection(connection, msgRouter)
+
 	}
 }
 
