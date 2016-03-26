@@ -7,30 +7,43 @@ import (
 	"testing"
 )
 
-func TestServerIntegration(t *testing.T) {
+func TestMain(m *testing.M) {
 	ready := make(chan bool, 1)
 	go StartServer(ready)
-	//defer func() { quit <- true }()
-
+	defer func() { ready <- true }()
 	<-ready
+	m.Run()
+}
+
+func sendMessage(command string) (string, error) {
 	conn, err := net.Dial("tcp", "127.0.0.1:8080")
 	if err != nil {
-		t.Errorf("Failed to connect to local server; Error: %v", err)
-		return
+		return "", err
 	}
 
 	reader := bufio.NewReader(conn)
+	conn.Write([]byte(command))
+	defer conn.Close()
 
-	indexGolang := "INDEX|golang|\n"
-	conn.Write([]byte(indexGolang))
 	response, err := reader.ReadString('\n')
-	response = strings.TrimRight(response, "\n")
-
 	if err != nil {
-		t.Errorf("Failed to read response from local server; Error: %v", err)
-	}
-	if response != "OK" {
-		t.Errorf("Failed to index first dependency free example")
+		return "", err
 	}
 
+	response = strings.TrimRight(response, "\n")
+	return response, nil
+}
+
+func expect(t *testing.T, command string, want string, failureMsg string) {
+	response, err := sendMessage(command + "\n")
+	if err != nil {
+		t.Errorf("Error when talking to server; Error: %v", err)
+	}
+	if response != want {
+		t.Errorf(failureMsg+"Expected: %v, Got %v", want, response)
+	}
+}
+
+func TestServerIntegration(t *testing.T) {
+	expect(t, "INDEX|golang|", "OK", "Failed to index first dependency free example. ")
 }

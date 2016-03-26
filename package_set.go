@@ -59,7 +59,7 @@ func (rs *PackageSet) RemovePackage(pkgName string) error {
 	pkg := rs.Packages[pkgName]
 	for i := range pkg.Dependencies {
 		dependency := pkg.Dependencies[i]
-		_ = rs.ReverseDependencies[dependency.PackageName].RemoveDependency(dependency)
+		rs.ReverseDependencies[dependency.PackageName].RemoveDependency(dependency)
 	}
 
 	delete(rs.Packages, pkgName)
@@ -67,10 +67,6 @@ func (rs *PackageSet) RemovePackage(pkgName string) error {
 }
 
 func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) error {
-	if rs == nil {
-		return nil
-	}
-
 	rs.ReadWriteLock.Lock()
 	defer rs.ReadWriteLock.Unlock()
 
