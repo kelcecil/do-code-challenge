@@ -6,19 +6,20 @@ import (
 )
 
 var (
-	DEPENDENCY_NOT_AVAILABLE = errors.New("Dependency is not available")
+	DEPENDENCY_NOT_AVAILABLE = errors.New("Dependency is not available.")
+	REQUIRED_BY_OTHERS       = errors.New("Package is a dependency of other packages.")
 )
 
 type PackageSet struct {
 	Packages            map[string]*Package
-	ReverseDependencies map[string][]*Package
+	ReverseDependencies map[string]*ReverseDependencyList
 	ReadWriteLock       *sync.RWMutex
 }
 
 func NewPackageSet() *PackageSet {
 	return &PackageSet{
 		Packages:            map[string]*Package{},
-		ReverseDependencies: map[string][]*Package{},
+		ReverseDependencies: map[string]*ReverseDependencyList{},
 		ReadWriteLock:       &sync.RWMutex{},
 	}
 }
@@ -48,6 +49,28 @@ func (rs *PackageSet) findPackage(packageName string) *Package {
 	return pkg
 }
 
+func (rs *PackageSet) RemovePackage(pkgName string) error {
+	if rs == nil {
+		return nil
+	}
+
+	rs.ReadWriteLock.Lock()
+	defer rs.ReadWriteLock.Unlock()
+
+	if rs.ReverseDependencies[pkgName].IsDependedOn() {
+		return REQUIRED_BY_OTHERS
+	}
+
+	pkg := rs.Packages[pkgName]
+	for i := range pkg.Dependencies {
+		dependency := pkg.Dependencies[i]
+		_ = rs.ReverseDependencies[dependency.PackageName].RemoveDependency(dependency)
+	}
+
+	delete(rs.Packages, pkgName)
+	return nil
+}
+
 func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) error {
 	if rs == nil {
 		return nil
@@ -62,14 +85,13 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 	}
 
 	if rs.findPackage(pkgName) == nil {
-		rs.ReverseDependencies[pkgName] = make([]*Package, 0)
+		rs.ReverseDependencies[pkgName] = NewReverseDependencyList()
 
 		newPackage := NewPackage(pkgName, depPackages...)
 		rs.Packages[pkgName] = newPackage
 
 		for i := range dependencies {
-			rs.ReverseDependencies[dependencies[i]] =
-				append(rs.ReverseDependencies[dependencies[i]], newPackage)
+			rs.ReverseDependencies[dependencies[i]].InsertNewDependency(newPackage)
 		}
 	}
 	return nil

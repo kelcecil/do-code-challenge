@@ -122,11 +122,13 @@ func TestReverseDependencyTracking(t *testing.T) {
 	if err != nil {
 		t.Error("Inserting package failed.")
 	}
-	dependents := packageSet.ReverseDependencies["golang"]
-	countOfDependents := len(dependents)
-	if countOfDependents != 1 && dependents[0].PackageName != "glide" {
-		t.Errorf("Expected reverse dependencies to have 1 and to be glide; Got %v and %v",
-			countOfDependents, dependents[0].PackageName)
+	rdl := packageSet.ReverseDependencies["golang"]
+
+	if !rdl.IsDependedOn() {
+		t.Errorf("Expected package to be depended on")
+	}
+	if !rdl.IsDependedOnBy("glide") {
+		t.Error("Expected package to be depended on by example.")
 	}
 }
 
