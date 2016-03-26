@@ -11,10 +11,10 @@ var (
 	packages *PackageSet = NewPackageSet()
 )
 
-func StartServer(ready chan bool) {
+func StartServer(testMode bool, ready chan bool) {
 	log.Print("Starting server")
 
-	msgRouter := make(chan *Message, 500)
+	msgRouter := make(chan *Message, 1000)
 	go MessageRouter(msgRouter)
 
 	listener, err := net.Listen("tcp", ":8080")
@@ -22,7 +22,9 @@ func StartServer(ready chan bool) {
 		panic(err)
 	}
 
-	ready <- true
+	if testMode {
+		ready <- true
+	}
 
 	for {
 		select {

@@ -9,7 +9,7 @@ import (
 
 func TestMain(m *testing.M) {
 	ready := make(chan bool, 1)
-	go StartServer(ready)
+	go StartServer(true, ready)
 	defer func() { ready <- true }()
 	<-ready
 	m.Run()
@@ -54,5 +54,4 @@ func TestIntegrationScenarioOne(t *testing.T) {
 	expect(t, "QUERY|golang|", "OK", "A query was FAIL that should exist.")
 	expect(t, "REMOVE|glide|", "OK", "A package with no dependents failed to be removed.")
 	expect(t, "REMOVE|golang|", "OK", "A package with no CURRENT dependents failed to be removed.")
-
 }
