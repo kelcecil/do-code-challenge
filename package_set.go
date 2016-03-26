@@ -57,9 +57,10 @@ func (rs *PackageSet) RemovePackage(pkgName string) error {
 	}
 
 	pkg := rs.Packages[pkgName]
+
 	for i := range pkg.Dependencies {
 		dependency := pkg.Dependencies[i]
-		rs.ReverseDependencies[dependency.PackageName].RemoveDependency(dependency)
+		rs.ReverseDependencies[dependency.PackageName].RemoveDependency(pkg)
 	}
 
 	delete(rs.Packages, pkgName)

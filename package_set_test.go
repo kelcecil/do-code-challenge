@@ -35,11 +35,23 @@ func TestPackageRemovalWithNoDependents(t *testing.T) {
 	}
 }
 
-func TestPackageRemovalWithDependents(t *testing.T) {
+func TestPackageRemovalWithDependentsFails(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 	err := packageSet.RemovePackage("golang")
 	if err != REQUIRED_BY_OTHERS {
 		t.Errorf("Expected REQUIRED_BY_OTHERS error; Got %v", err)
+	}
+}
+
+func TestPackageRemovalWithPreviousDependents(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	err := packageSet.RemovePackage("glide")
+	if err != nil {
+		t.Errorf("Failed to remove dependent package; Error: %v", err)
+	}
+	err = packageSet.RemovePackage("golang")
+	if err != nil {
+		t.Errorf("Failed to remove package with former dependent; Error: %v", err)
 	}
 }
 
