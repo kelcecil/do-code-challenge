@@ -136,6 +136,17 @@ func BenchmarkInsertPackages(b *testing.B) {
 	}
 }
 
+func BenchmarkFetchPackage(b *testing.B) {
+	packageSet := createNewPackageSetWithData()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		packageSet.FetchPackages("homebrew")
+		packageSet.FetchPackages("golang")
+		packageSet.FetchPackages("golo")
+		packageSet.FetchPackages("sdl")
+	}
+}
+
 func createNewPackageSetWithData() *PackageSet {
 	Packages := []string{"homebrew", "golang", "golo", "sdl"}
 
