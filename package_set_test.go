@@ -40,6 +40,14 @@ func TestPackageRemovalWithNoDependents(t *testing.T) {
 	}
 }
 
+func TestPackageRemovalWithDependents(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	err := packageSet.RemovePackage("golang")
+	if err != REQUIRED_BY_OTHERS {
+		t.Errorf("Expected REQUIRED_BY_OTHERS error; Got %v", err)
+	}
+}
+
 func TestInsertNewPackageWithKnownGoodDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 	newPackages := packageSet.FetchPackages("glide")
