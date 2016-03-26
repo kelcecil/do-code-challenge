@@ -52,7 +52,14 @@ func (rs *PackageSet) RemovePackage(pkgName string) error {
 	rs.ReadWriteLock.Lock()
 	defer rs.ReadWriteLock.Unlock()
 
-	if rs.ReverseDependencies[pkgName].IsDependedOn() {
+	checkPackage := rs.findPackage(pkgName)
+	if checkPackage == nil {
+		return nil
+	}
+
+	rdl, ok := rs.ReverseDependencies[pkgName]
+
+	if !ok || rdl.IsDependedOn() {
 		return REQUIRED_BY_OTHERS
 	}
 

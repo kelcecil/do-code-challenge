@@ -35,6 +35,14 @@ func TestPackageRemovalWithNoDependents(t *testing.T) {
 	}
 }
 
+func TestPackageRemovalWithNonexistentPackage(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	err := packageSet.RemovePackage("harveyRabbit")
+	if err != nil {
+		t.Error("Removal of nonexistent pkg should have returned no error.")
+	}
+}
+
 func TestPackageRemovalWithDependentsFails(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 	err := packageSet.RemovePackage("golang")
