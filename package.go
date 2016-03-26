@@ -52,13 +52,14 @@ func (rs *PackageSet) FetchPackages(PackageNames ...string) (Packages []*Package
 	}
 
 	rs.ReadWriteLock.RLock()
+	defer rs.ReadWriteLock.RUnlock()
+
 	for i := range PackageNames {
 		Package := rs.findPackage(PackageNames[i])
 		if Package != nil {
 			Packages = append(Packages, Package)
 		}
 	}
-	rs.ReadWriteLock.RUnlock()
 	return Packages
 }
 
@@ -83,6 +84,8 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 	}
 
 	rs.ReadWriteLock.Lock()
+	defer rs.ReadWriteLock.Unlock()
+
 	depPackages, ok := rs.FindRequiredDependencies(dependencies...)
 	if !ok {
 		return DEPENDENCY_NOT_AVAILABLE
@@ -91,7 +94,6 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 		newPackage := NewPackage(pkgName, depPackages...)
 		rs.Packages = append(rs.Packages, newPackage)
 	}
-	rs.ReadWriteLock.Unlock()
 	return nil
 }
 
