@@ -40,10 +40,19 @@ func expect(t *testing.T, command string, want string, failureMsg string) {
 		t.Errorf("Error when talking to server; Error: %v", err)
 	}
 	if response != want {
-		t.Errorf(failureMsg+"Expected: %v, Got %v", want, response)
+		t.Errorf(failureMsg+" Expected: %v, Got %v", want, response)
 	}
 }
 
-func TestServerIntegration(t *testing.T) {
-	expect(t, "INDEX|golang|", "OK", "Failed to index first dependency free example. ")
+func TestIntegrationScenarioOne(t *testing.T) {
+	expect(t, "QUERY|golang|", "FAIL", "An query was OK that should not exist.")
+	expect(t, "INDEX|golang|", "OK", "Failed to index first dependency free example.")
+	expect(t, "QUERY|golang|", "OK", "A query was FAIL that should exist.")
+	expect(t, "INDEX|glide|golang", "OK", "Failed to index a package with a known dependency.")
+	expect(t, "QUERY|glide|", "OK", "A package with a dependency was not indexed and should be.")
+	expect(t, "REMOVE|golang|", "FAIL", "A package which has a dependent was deleted and should not have been.")
+	expect(t, "QUERY|golang|", "OK", "A query was FAIL that should exist.")
+	expect(t, "REMOVE|glide|", "OK", "A package with no dependents failed to be removed.")
+	expect(t, "REMOVE|golang|", "OK", "A package with no CURRENT dependents failed to be removed.")
+
 }
