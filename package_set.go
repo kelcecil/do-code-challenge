@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"sort"
 	"sync"
 )
 
@@ -11,26 +10,15 @@ var (
 )
 
 type PackageSet struct {
-	Packages      []*Package
+	Packages      map[string]*Package
 	ReadWriteLock *sync.RWMutex
 }
 
 func NewPackageSet() *PackageSet {
 	return &PackageSet{
-		Packages:      []*Package{},
+		Packages:      map[string]*Package{},
 		ReadWriteLock: &sync.RWMutex{},
 	}
-}
-
-func (rs *PackageSet) Items() []*Package {
-	if rs == nil {
-		return nil
-	}
-
-	if !sort.IsSorted(rs) {
-		sort.Sort(rs)
-	}
-	return rs.Packages
 }
 
 func (rs *PackageSet) FetchPackages(PackageNames ...string) (Packages []*Package) {
@@ -50,19 +38,12 @@ func (rs *PackageSet) FetchPackages(PackageNames ...string) (Packages []*Package
 	return Packages
 }
 
-func (rs *PackageSet) findPackage(PackageName string) *Package {
-	PackagesInSet := rs.Items()
-	candidateIndice := sort.Search(len(PackagesInSet), func(i int) bool {
-		return PackagesInSet[i].PackageName >= PackageName
-	})
-	if candidateIndice >= len(PackagesInSet) {
+func (rs *PackageSet) findPackage(packageName string) *Package {
+	pkg, ok := rs.Packages[packageName]
+	if !ok {
 		return nil
 	}
-	candidatePackage := PackagesInSet[candidateIndice]
-	if candidatePackage.PackageName == PackageName {
-		return candidatePackage
-	}
-	return nil
+	return pkg
 }
 
 func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) error {
@@ -79,7 +60,7 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 	}
 	if rs.findPackage(pkgName) == nil {
 		newPackage := NewPackage(pkgName, depPackages...)
-		rs.Packages = append(rs.Packages, newPackage)
+		rs.Packages[pkgName] = newPackage
 	}
 	return nil
 }
@@ -95,16 +76,4 @@ func (rs *PackageSet) FindRequiredDependencies(dependencies ...string) (foundDep
 		}
 	}
 	return foundDependencies, noMissingDeps
-}
-
-func (rs *PackageSet) Len() int {
-	return len(rs.Packages)
-}
-
-func (rs *PackageSet) Swap(i, j int) {
-	rs.Packages[i], rs.Packages[j] = rs.Packages[j], rs.Packages[i]
-}
-
-func (rs *PackageSet) Less(i, j int) bool {
-	return rs.Packages[i].PackageName < rs.Packages[j].PackageName
 }

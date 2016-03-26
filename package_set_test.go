@@ -2,16 +2,6 @@ package main
 
 import "testing"
 
-func TestSimplePackagesort(t *testing.T) {
-	packageSet := createNewPackageSetWithData()
-
-	Packages := packageSet.Items()
-
-	if Packages[0].PackageName != "golang" && Packages[1].PackageName != "homebrew" {
-		t.Errorf("Packages in packageSet are not sorted in alphabetical order.")
-	}
-}
-
 func TestSimplePackageFetch(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
@@ -26,17 +16,10 @@ func TestSimplePackageFetch(t *testing.T) {
 	}
 }
 
-func TestInsertNewPackage(t *testing.T) {
+func TestInsertDuplicateNewPackage(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
-	packageSet.InsertPackage("golang")
-	count := 0
-	Packages := packageSet.Items()
-	for i := range Packages {
-		if Packages[i].PackageName == "golang" {
-			count++
-		}
-	}
-	if count != 1 {
+	result := packageSet.InsertPackage("golang")
+	if result != nil {
 		t.Error("Duplicate Packages should not be possible.")
 	}
 }
@@ -121,21 +104,6 @@ func TestFindMixOfDependencies(t *testing.T) {
 	expectedDep := Packages[0].PackageName
 	if expectedDep != "golo" {
 		t.Errorf("Expected golo deps; Received %v", expectedDep)
-	}
-}
-
-func TestInsertDuplicatePackage(t *testing.T) {
-	packageSet := createNewPackageSetWithData()
-	packageSet.InsertPackage("golang")
-	count := 0
-	Packages := packageSet.Items()
-	for i := range Packages {
-		if Packages[i].PackageName == "golang" {
-			count++
-		}
-	}
-	if count != 1 {
-		t.Error("Duplicate Packages should not be possible.")
 	}
 }
 
