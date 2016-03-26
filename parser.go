@@ -3,7 +3,7 @@ package main
 import "bytes"
 
 func ParseMessage(rawMessage string) (*Message, error) {
-	newMessage := &Message{}
+	newMessage := NewEmptyMessage()
 	var buf bytes.Buffer
 
 	for i := 0; i < len(rawMessage); i++ {

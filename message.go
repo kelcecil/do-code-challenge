@@ -12,12 +12,18 @@ type Message struct {
 	Response            chan string
 }
 
+func NewEmptyMessage() *Message {
+	return &Message{
+		Response: make(chan string),
+	}
+}
+
 func NewMessage(cmd string, pkgName string, pkgDeps []string) *Message {
 	return &Message{
 		Command:             cmd,
 		PackageName:         pkgName,
 		PackageDependencies: pkgDeps,
-		Response:            make(chan string, 0),
+		Response:            make(chan string),
 	}
 }
 
