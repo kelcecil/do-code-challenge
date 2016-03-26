@@ -10,14 +10,16 @@ var (
 )
 
 type PackageSet struct {
-	Packages      map[string]*Package
-	ReadWriteLock *sync.RWMutex
+	Packages            map[string]*Package
+	ReverseDependencies map[string][]*Package
+	ReadWriteLock       *sync.RWMutex
 }
 
 func NewPackageSet() *PackageSet {
 	return &PackageSet{
-		Packages:      map[string]*Package{},
-		ReadWriteLock: &sync.RWMutex{},
+		Packages:            map[string]*Package{},
+		ReverseDependencies: map[string][]*Package{},
+		ReadWriteLock:       &sync.RWMutex{},
 	}
 }
 
@@ -58,9 +60,17 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 	if !ok {
 		return DEPENDENCY_NOT_AVAILABLE
 	}
+
 	if rs.findPackage(pkgName) == nil {
+		rs.ReverseDependencies[pkgName] = make([]*Package, 0)
+
 		newPackage := NewPackage(pkgName, depPackages...)
 		rs.Packages[pkgName] = newPackage
+
+		for i := range dependencies {
+			rs.ReverseDependencies[dependencies[i]] =
+				append(rs.ReverseDependencies[dependencies[i]], newPackage)
+		}
 	}
 	return nil
 }

@@ -110,9 +110,23 @@ func TestFindMixOfDependencies(t *testing.T) {
 func TestFetchNonExistentPackage(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	fetchedpackage := packageSet.FetchPackages("harveyRabbit")
-	if len(fetchedpackage) != 0 {
+	fetchedPackage := packageSet.FetchPackages("harveyRabbit")
+	if len(fetchedPackage) != 0 {
 		t.Errorf("A package was fetched that should not exist.")
+	}
+}
+
+func TestReverseDependencyTracking(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	err := packageSet.InsertPackage("glide", "golang")
+	if err != nil {
+		t.Error("Inserting package failed.")
+	}
+	dependents := packageSet.ReverseDependencies["golang"]
+	countOfDependents := len(dependents)
+	if countOfDependents != 1 && dependents[0].PackageName != "glide" {
+		t.Errorf("Expected reverse dependencies to have 1 and to be glide; Got %v and %v",
+			countOfDependents, dependents[0].PackageName)
 	}
 }
 
