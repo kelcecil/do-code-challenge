@@ -26,10 +26,6 @@ func TestInsertDuplicateNewPackage(t *testing.T) {
 
 func TestInsertNewPackageWithKnownGoodDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
-	err := packageSet.InsertPackage("glide", "golang", "homebrew")
-	if err != nil {
-		t.Errorf("Error encountered when inserting with known good deps; Message: %v", err.Error())
-	}
 	newPackages := packageSet.FetchPackages("glide")
 
 	packageCount := len(newPackages)
@@ -60,7 +56,7 @@ func TestInsertNewPackageWithKnownGoodDependencies(t *testing.T) {
 
 func TestInsertNewPackageWithKnownBadDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
-	err := packageSet.InsertPackage("glide", "golang", "left-pad")
+	err := packageSet.InsertPackage("do-example", "golang", "left-pad")
 	if err == nil {
 		t.Errorf("Inserting with known bad deps should not have happened")
 	}
@@ -118,10 +114,6 @@ func TestFetchNonExistentPackage(t *testing.T) {
 
 func TestReverseDependencyTracking(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
-	err := packageSet.InsertPackage("glide", "golang")
-	if err != nil {
-		t.Error("Inserting package failed.")
-	}
 	rdl := packageSet.ReverseDependencies["golang"]
 
 	if !rdl.IsDependedOn() {
@@ -156,5 +148,7 @@ func createNewPackageSetWithData() *PackageSet {
 	for i := range Packages {
 		packageSet.InsertPackage(Packages[i])
 	}
+
+	packageSet.InsertPackage("glide", "golang", "homebrew")
 	return packageSet
 }
