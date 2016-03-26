@@ -5,14 +5,9 @@ import "testing"
 func TestSimplePackageFetch(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	fetchedPackage := packageSet.FetchPackages("homebrew")
-	if len(fetchedPackage) != 1 || fetchedPackage[0].PackageName != "homebrew" {
+	fetchedPackage := packageSet.FetchPackage("homebrew")
+	if fetchedPackage.PackageName != "homebrew" {
 		t.Error("Fetching a single package failed.")
-	}
-
-	fetchedPackage = packageSet.FetchPackages("golang", "homebrew")
-	if len(fetchedPackage) != 2 || fetchedPackage[0].PackageName != "golang" {
-		t.Errorf("Fetching multiple Packages at once failed.")
 	}
 }
 
@@ -26,17 +21,17 @@ func TestInsertDuplicateNewPackage(t *testing.T) {
 
 func TestPackageRemovalWithNoDependents(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
-	countPackages := len(packageSet.FetchPackages("sdl"))
-	if countPackages != 1 {
-		t.Error("Expected one package when asking for specific pkg before delete; Got: %v pkgs", countPackages)
+	pkg := packageSet.FetchPackage("sdl")
+	if pkg == nil {
+		t.Error("Expected one package when asking for specific pkg before delete")
 	}
 	err := packageSet.RemovePackage("sdl")
 	if err != nil {
 		t.Error("Failure to remove package with no dependents; Message: %v", err)
 	}
-	countPackages = len(packageSet.FetchPackages("sdl"))
-	if countPackages != 0 {
-		t.Error("Expected zero packages when asking for specific pkg; Got: %v pkgs", countPackages)
+	pkg = packageSet.FetchPackage("sdl")
+	if pkg != nil {
+		t.Error("Expected zero packages when asking for specific pkg")
 	}
 }
 
@@ -50,25 +45,23 @@ func TestPackageRemovalWithDependents(t *testing.T) {
 
 func TestInsertNewPackageWithKnownGoodDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
-	newPackages := packageSet.FetchPackages("glide")
+	pkg := packageSet.FetchPackage("glide")
 
-	packageCount := len(newPackages)
-	if packageCount != 1 {
-		t.Errorf("Expected one package returned; Got %v", packageCount)
+	if pkg == nil {
+		t.Errorf("Expected one package returned; Got zero")
 	}
 
-	packageName := newPackages[0].PackageName
-	if packageName != "glide" {
-		t.Errorf("Expected package to be named glide; Got %v", packageName)
+	if pkg.PackageName != "glide" {
+		t.Errorf("Expected package to be named glide.")
 	}
 
-	lengthOfDeps := len(newPackages[0].Dependencies)
+	lengthOfDeps := len(pkg.Dependencies)
 	if lengthOfDeps != 2 {
 		t.Errorf("Expected two dependencies to be returned; Got %v", lengthOfDeps)
 	}
 
-	dependencyOneName := newPackages[0].Dependencies[0].PackageName
-	dependencyTwoName := newPackages[0].Dependencies[1].PackageName
+	dependencyOneName := pkg.Dependencies[0].PackageName
+	dependencyTwoName := pkg.Dependencies[1].PackageName
 	depNamesMatch := dependencyOneName == "golang" &&
 		dependencyTwoName == "homebrew"
 
@@ -130,8 +123,8 @@ func TestFindMixOfDependencies(t *testing.T) {
 func TestFetchNonExistentPackage(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	fetchedPackage := packageSet.FetchPackages("harveyRabbit")
-	if len(fetchedPackage) != 0 {
+	fetchedPackage := packageSet.FetchPackage("harveyRabbit")
+	if fetchedPackage != nil {
 		t.Errorf("A package was fetched that should not exist.")
 	}
 }
@@ -158,10 +151,10 @@ func BenchmarkFetchPackage(b *testing.B) {
 	packageSet := createNewPackageSetWithData()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		packageSet.FetchPackages("homebrew")
-		packageSet.FetchPackages("golang")
-		packageSet.FetchPackages("golo")
-		packageSet.FetchPackages("sdl")
+		packageSet.FetchPackage("homebrew")
+		packageSet.FetchPackage("golang")
+		packageSet.FetchPackage("golo")
+		packageSet.FetchPackage("sdl")
 	}
 }
 

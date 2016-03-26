@@ -24,7 +24,7 @@ func NewPackageSet() *PackageSet {
 	}
 }
 
-func (rs *PackageSet) FetchPackages(PackageNames ...string) (Packages []*Package) {
+func (rs *PackageSet) FetchPackage(pkgName string) *Package {
 	if rs == nil {
 		return nil
 	}
@@ -32,13 +32,8 @@ func (rs *PackageSet) FetchPackages(PackageNames ...string) (Packages []*Package
 	rs.ReadWriteLock.RLock()
 	defer rs.ReadWriteLock.RUnlock()
 
-	for i := range PackageNames {
-		Package := rs.findPackage(PackageNames[i])
-		if Package != nil {
-			Packages = append(Packages, Package)
-		}
-	}
-	return Packages
+	pkg := rs.findPackage(pkgName)
+	return pkg
 }
 
 func (rs *PackageSet) findPackage(packageName string) *Package {
