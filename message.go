@@ -9,6 +9,7 @@ type Message struct {
 	Command             string
 	PackageName         string
 	PackageDependencies []string
+	Response            chan string
 }
 
 func NewMessage(cmd string, pkgName string, pkgDeps []string) *Message {
@@ -16,6 +17,7 @@ func NewMessage(cmd string, pkgName string, pkgDeps []string) *Message {
 		Command:             cmd,
 		PackageName:         pkgName,
 		PackageDependencies: pkgDeps,
+		Response:            make(chan string, 0),
 	}
 }
 
@@ -23,7 +25,7 @@ func (message *Message) String() string {
 	if message == nil {
 		return ""
 	}
-	return fmt.Sprintf("Command: %v, PackageName: %v, PackageDependencies %v",
+	return fmt.Sprintf("Command: %v, PackageName: %v, PackageDependencies %v\n",
 		message.Command, message.PackageName, message.PackageDependencies)
 }
 
