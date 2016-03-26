@@ -5,13 +5,13 @@ import "testing"
 func TestSimplePackageFetch(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	fetchedpackage := packageSet.FetchPackages("homebrew")
-	if len(fetchedpackage) != 1 || fetchedpackage[0].PackageName != "homebrew" {
+	fetchedPackage := packageSet.FetchPackages("homebrew")
+	if len(fetchedPackage) != 1 || fetchedPackage[0].PackageName != "homebrew" {
 		t.Error("Fetching a single package failed.")
 	}
 
-	fetchedpackage = packageSet.FetchPackages("golang", "homebrew")
-	if len(fetchedpackage) != 2 || fetchedpackage[0].PackageName != "golang" {
+	fetchedPackage = packageSet.FetchPackages("golang", "homebrew")
+	if len(fetchedPackage) != 2 || fetchedPackage[0].PackageName != "golang" {
 		t.Errorf("Fetching multiple Packages at once failed.")
 	}
 }
@@ -92,12 +92,12 @@ func TestInsertNewPackageWithKnownBadDependencies(t *testing.T) {
 func TestFindKnownInsertedDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	Packages, ok := packageSet.FindRequiredDependencies("golo", "homebrew")
-	if len(Packages) != 2 || !ok {
-		t.Errorf("Expected to find 2 dependencies and ok = true; Received %v dependencies and ok = %v", len(Packages), ok)
+	packages, ok := packageSet.FindRequiredDependencies("golo", "homebrew")
+	if len(packages) != 2 || !ok {
+		t.Errorf("Expected to find 2 dependencies and ok = true; Received %v dependencies and ok = %v", len(packages), ok)
 	}
-	expectedDepOne := Packages[0].PackageName
-	expectedDepTwo := Packages[1].PackageName
+	expectedDepOne := packages[0].PackageName
+	expectedDepTwo := packages[1].PackageName
 	if expectedDepOne != "golo" || expectedDepTwo != "homebrew" {
 		t.Errorf("Expected golo and homebrew deps; Received %v and %v", expectedDepOne, expectedDepTwo)
 	}
@@ -106,8 +106,8 @@ func TestFindKnownInsertedDependencies(t *testing.T) {
 func TestFindKnownNotInsertedDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	Packages, ok := packageSet.FindRequiredDependencies("java", "fish")
-	packageCount := len(Packages)
+	packages, ok := packageSet.FindRequiredDependencies("java", "fish")
+	packageCount := len(packages)
 	if packageCount != 0 || ok {
 		t.Errorf("Expected to find 0 dependencies and ok = false; Received %v dependencies and ok = %v", packageCount, ok)
 	}
@@ -116,12 +116,12 @@ func TestFindKnownNotInsertedDependencies(t *testing.T) {
 func TestFindMixOfDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 
-	Packages, ok := packageSet.FindRequiredDependencies("golo", "fish")
-	packageCount := len(Packages)
+	packages, ok := packageSet.FindRequiredDependencies("golo", "fish")
+	packageCount := len(packages)
 	if packageCount != 1 || ok {
 		t.Errorf("Expected to find 1 dependencies and ok = false; Received %v dependencies and ok = %v", packageCount, ok)
 	}
-	expectedDep := Packages[0].PackageName
+	expectedDep := packages[0].PackageName
 	if expectedDep != "golo" {
 		t.Errorf("Expected golo deps; Received %v", expectedDep)
 	}
@@ -166,11 +166,11 @@ func BenchmarkFetchPackage(b *testing.B) {
 }
 
 func createNewPackageSetWithData() *PackageSet {
-	Packages := []string{"homebrew", "golang", "golo", "sdl"}
+	packages := []string{"homebrew", "golang", "golo", "sdl"}
 
 	packageSet := NewPackageSet()
-	for i := range Packages {
-		packageSet.InsertPackage(Packages[i])
+	for i := range packages {
+		packageSet.InsertPackage(packages[i])
 	}
 
 	packageSet.InsertPackage("glide", "golang", "homebrew")
