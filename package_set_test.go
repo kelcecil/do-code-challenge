@@ -24,6 +24,22 @@ func TestInsertDuplicateNewPackage(t *testing.T) {
 	}
 }
 
+func TestPackageRemovalWithNoDependents(t *testing.T) {
+	packageSet := createNewPackageSetWithData()
+	countPackages := len(packageSet.FetchPackages("sdl"))
+	if countPackages != 1 {
+		t.Error("Expected one package when asking for specific pkg before delete; Got: %v pkgs", countPackages)
+	}
+	err := packageSet.RemovePackage("sdl")
+	if err != nil {
+		t.Error("Failure to remove package with no dependents; Message: %v", err)
+	}
+	countPackages = len(packageSet.FetchPackages("sdl"))
+	if countPackages != 0 {
+		t.Error("Expected zero packages when asking for specific pkg; Got: %v pkgs", countPackages)
+	}
+}
+
 func TestInsertNewPackageWithKnownGoodDependencies(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 	newPackages := packageSet.FetchPackages("glide")
