@@ -2,9 +2,46 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"strings"
 )
+
+var (
+	EOL error = errors.New("Reader is closed and reader buffer is exhausted.")
+)
+
+type MessageReader struct {
+	reader io.Reader
+	buf    bytes.Buffer
+}
+
+func NewMessageReader(rdr io.Reader) MessageReader {
+	return MessageReader{
+		reader: rdr,
+	}
+}
+
+func (rdr *MessageReader) Read() (*Message, error) {
+	readBytes := make([]byte, 4096)
+	for {
+		n, err := rdr.reader.Read(readBytes)
+		if err == io.EOF {
+			return nil, err
+		}
+		rdr.buf.Write(readBytes[:n])
+		if bytes.Contains(readBytes, []byte("\n")) {
+			break
+		}
+	}
+
+	line, err := rdr.buf.ReadString(byte('\n'))
+	message, err := ParseMessage(line)
+	if err != nil {
+		return nil, err
+	}
+	return message, nil
+}
 
 func ParseMessage(rawMessage string) (*Message, error) {
 	newMessage := NewEmptyMessage()

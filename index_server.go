@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"io"
 	"log"
 	"net"
@@ -39,7 +38,6 @@ func StartServer(testMode bool, ready chan bool) {
 			listener.SetDeadline(time.Now().Add(5 * time.Second))
 		}
 
-		log.Print("Waiting for connection")
 		connection, err := listener.Accept()
 		if err != nil {
 			if err.(*net.OpError).Timeout() {
@@ -53,26 +51,25 @@ func StartServer(testMode bool, ready chan bool) {
 }
 
 func HandleConnection(conn net.Conn, msgRouter chan<- *Message) {
-	reader := bufio.NewReader(conn)
+	reader := NewMessageReader(conn)
 	for {
-		line, err := reader.ReadString('\n')
+		message, err := reader.Read()
 		if err == io.EOF {
 			log.Print("Connection closed")
 			conn.Close()
-			return
+			break
 		} else if err != nil {
-			log.Print(err)
-		}
-		log.Print(line)
-		message, err := ParseMessage(line)
-		if err != nil {
 			_, err = conn.Write([]byte("ERROR\n"))
+			if err != nil {
+				log.Print(err)
+			}
 			continue
 		}
+
+		log.Print("Sending msg")
 		msgRouter <- message
-		log.Print("Reading response")
+		log.Print("Waiting for response")
 		response := <-message.Response
-		log.Print(response)
 		_, err = conn.Write([]byte(response + "\n"))
 		if err != nil {
 			log.Print(err)

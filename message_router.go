@@ -1,12 +1,9 @@
 package main
 
-import "log"
-
 func MessageRouter(messages <-chan *Message) {
 	for {
 		select {
 		case msg := <-messages:
-			log.Print(msg)
 			if msg.Command == "INDEX" {
 				index(msg)
 			} else if msg.Command == "QUERY" {
