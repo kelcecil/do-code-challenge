@@ -43,6 +43,6 @@ func TestMessageReaderIndex(t *testing.T) {
 	expectedMessage := message.NewMessage("INDEX", "golang", []string{})
 
 	if !msg.Equals(expectedMessage) {
-		t.Error("Messages did not match; Wanted: %v, Got: %v", expectedMessage.String(), msg.String())
+		t.Errorf("Messages did not match; Wanted: %v, Got: %v", expectedMessage.String(), msg.String())
 	}
 }

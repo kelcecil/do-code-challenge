@@ -10,7 +10,7 @@ func TestInsertDependencyIntoList(t *testing.T) {
 
 	countDependencies := len(rdl.Dependencies)
 	if countDependencies != 2 {
-		t.Error("Expected two dependencies; Got %v", countDependencies)
+		t.Errorf("Expected two dependencies; Got %v", countDependencies)
 	}
 
 	if rdl.Dependencies[0].PackageName != "glide" || rdl.Dependencies[1].PackageName != "golang" {
@@ -61,11 +61,11 @@ func TestIsDependedOnBy(t *testing.T) {
 func TestReverseDependencyListSortFuncs(t *testing.T) {
 	rdl := createReverseDependencyList()
 	if rdl.Len() != 2 {
-		t.Error("Len function is not correct. Want: 2, Got: %v", rdl.Len())
+		t.Errorf("Len function is not correct. Want: 2, Got: %v", rdl.Len())
 	}
 	less := rdl.Less(0, 1)
 	if !less {
-		t.Error("Less function is not correct. Want: false, Got: %v", less)
+		t.Errorf("Less function is not correct. Want: false, Got: %v", less)
 	}
 	rdl.Swap(0, 1)
 	less = rdl.Less(0, 1)

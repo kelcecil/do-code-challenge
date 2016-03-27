@@ -30,7 +30,7 @@ func TestPackageRemovalWithNoDependents(t *testing.T) {
 	}
 	err := packageSet.RemovePackage("sdl")
 	if err != nil {
-		t.Error("Failure to remove package with no dependents; Message: %v", err)
+		t.Errorf("Failure to remove package with no dependents; Message: %v", err)
 	}
 	pkg = packageSet.FetchPackage("sdl")
 	if pkg != nil {
