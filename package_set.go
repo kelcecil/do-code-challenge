@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"sync"
 )
 
 var (
@@ -13,21 +12,16 @@ var (
 type PackageSet struct {
 	Packages            map[string]*Package
 	ReverseDependencies map[string]*ReverseDependencyList
-	ReadWriteLock       *sync.RWMutex
 }
 
 func NewPackageSet() *PackageSet {
 	return &PackageSet{
 		Packages:            map[string]*Package{},
 		ReverseDependencies: map[string]*ReverseDependencyList{},
-		ReadWriteLock:       &sync.RWMutex{},
 	}
 }
 
 func (rs *PackageSet) FetchPackage(pkgName string) *Package {
-	rs.ReadWriteLock.RLock()
-	defer rs.ReadWriteLock.RUnlock()
-
 	pkg := rs.findPackage(pkgName)
 	return pkg
 }
@@ -41,9 +35,6 @@ func (rs *PackageSet) findPackage(packageName string) *Package {
 }
 
 func (rs *PackageSet) RemovePackage(pkgName string) error {
-	rs.ReadWriteLock.Lock()
-	defer rs.ReadWriteLock.Unlock()
-
 	checkPackage := rs.findPackage(pkgName)
 	if checkPackage == nil {
 		return nil
@@ -67,9 +58,6 @@ func (rs *PackageSet) RemovePackage(pkgName string) error {
 }
 
 func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) error {
-	rs.ReadWriteLock.Lock()
-	defer rs.ReadWriteLock.Unlock()
-
 	depPackages, ok := rs.FindRequiredDependencies(dependencies...)
 	if !ok {
 		return DEPENDENCY_NOT_AVAILABLE
