@@ -40,6 +40,23 @@ func createReverseDependencyList() *ReverseDependencyList {
 	return rdl
 }
 
+func TestNoDuplicate(t *testing.T) {
+	rdl := createReverseDependencyList()
+	if rdl.InsertNewDependency(NewPackage("golang")) {
+		t.Error("Duplicate dependency entry should not be allowed.")
+	}
+}
+
+func TestIsDependedOnBy(t *testing.T) {
+	rdl := createReverseDependencyList()
+	if !rdl.IsDependedOnBy("golang") {
+		t.Error("Golang should be a Reverse Dependency List.")
+	}
+	if rdl.IsDependedOnBy("scala") {
+		t.Error("Scala should not be found in Reverse Dependency List")
+	}
+}
+
 func TestReverseDependencyListSortFuncs(t *testing.T) {
 	rdl := createReverseDependencyList()
 	if rdl.Len() != 2 {

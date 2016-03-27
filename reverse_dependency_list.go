@@ -22,10 +22,7 @@ func (rdl *ReverseDependencyList) IsDependedOnBy(pkgName string) bool {
 	i := sort.Search(rdl.Len(), func(i int) bool {
 		return rdl.Dependencies[i].PackageName >= pkgName
 	})
-	if len(rdl.Dependencies) <= i {
-		return false
-	}
-	if rdl.Dependencies[i].PackageName == pkgName {
+	if !(rdl.Len() == i) && rdl.Dependencies[i].PackageName == pkgName {
 		return true
 	}
 	return false
@@ -34,7 +31,7 @@ func (rdl *ReverseDependencyList) IsDependedOnBy(pkgName string) bool {
 func (rdl *ReverseDependencyList) InsertNewDependency(pkg *Package) bool {
 	i := findIndice(rdl.Dependencies, pkg)
 
-	if len(rdl.Dependencies) == i ||
+	if rdl.Len() == i ||
 		rdl.Dependencies[i].PackageName != pkg.PackageName {
 		rdl.Dependencies = insertIntoArray(rdl.Dependencies, pkg, i)
 		return true
@@ -45,11 +42,8 @@ func (rdl *ReverseDependencyList) InsertNewDependency(pkg *Package) bool {
 func (rdl *ReverseDependencyList) RemoveDependency(pkg *Package) bool {
 	i := findIndice(rdl.Dependencies, pkg)
 
-	if len(rdl.Dependencies) <= i {
-		return false
-	}
-
-	if rdl.Dependencies[i].PackageName == pkg.PackageName {
+	if !(rdl.Len() <= i) &&
+		rdl.Dependencies[i].PackageName == pkg.PackageName {
 		rdl.Dependencies = removeFromArray(rdl.Dependencies, i)
 		return true
 	}
