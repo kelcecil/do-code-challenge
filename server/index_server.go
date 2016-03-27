@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
+// Test mode and ready is to let the integration tests
+// know that we're ready to begin.
 func StartServer(testMode bool, ready chan bool) {
-	log.Print("Starting server")
-
 	msgRouter := make(chan *message.Message, 1000)
 	go message.MessageRouter(msgRouter)
 
@@ -20,6 +20,10 @@ func StartServer(testMode bool, ready chan bool) {
 		panic(err)
 	}
 
+	log.Print("Server has started.")
+
+	// If this part of an integration test, then
+	// let the test know that it can continue.
 	if testMode {
 		ready <- true
 	}
@@ -27,11 +31,13 @@ func StartServer(testMode bool, ready chan bool) {
 	for {
 		select {
 		case <-ready:
+			log.Print("Received SIGTERM. Qutting...")
 			listener.Close()
 			return
 		default:
 		}
 
+		// Set a deadline for accept so that we can check for signals
 		if listener, ok := listener.(*net.TCPListener); ok {
 			listener.SetDeadline(time.Now().Add(5 * time.Second))
 		}
@@ -42,7 +48,6 @@ func StartServer(testMode bool, ready chan bool) {
 				continue
 			}
 		}
-		log.Print("Accepted connection")
 
 		go HandleConnection(connection, msgRouter)
 	}
@@ -53,7 +58,6 @@ func HandleConnection(conn net.Conn, msgRouter chan<- *message.Message) {
 	for {
 		message, err := reader.Read()
 		if err == io.EOF {
-			log.Print("Connection closed")
 			conn.Close()
 			break
 		} else if err != nil {
@@ -64,9 +68,7 @@ func HandleConnection(conn net.Conn, msgRouter chan<- *message.Message) {
 			continue
 		}
 
-		log.Print("Sending msg")
 		msgRouter <- message
-		log.Print("Waiting for response")
 		response := <-message.Response
 		_, err = conn.Write([]byte(response + "\n"))
 		if err != nil {
