@@ -1,44 +1,51 @@
 package main
 
-import "bytes"
+import (
+	"bytes"
+	"io"
+	"strings"
+)
 
 func ParseMessage(rawMessage string) (*Message, error) {
 	newMessage := NewEmptyMessage()
 	var buf bytes.Buffer
+	buf.WriteString(rawMessage)
 
-	for i := 0; i < len(rawMessage); i++ {
-		buf.WriteByte(rawMessage[i])
-		byteBar := byte('|')
-		if rawMessage[i] == byteBar {
-			token, err := buf.ReadBytes(byteBar)
-			if err != nil {
-				return nil, err
-			}
-
-			token = bytes.TrimSuffix(token, []byte("|"))
-			if newMessage.Command == "" {
-				newMessage.Command = string(token)
-			} else if newMessage.PackageName == "" {
-				newMessage.PackageName = string(token)
-			}
-		} else if rawMessage[i] == byte(',') {
-			token, err := buf.ReadBytes(byte(','))
-			if err != nil {
-				return nil, err
-			}
-			token = bytes.TrimSuffix(token, []byte(","))
-			newMessage.PackageDependencies = append(newMessage.PackageDependencies, string(token))
-		} else if rawMessage[i] == byte('\n') {
-			token, err := buf.ReadBytes(byte('\n'))
-			if err != nil {
-				return nil, err
-			}
-			token = bytes.TrimSpace(bytes.TrimSuffix(token, []byte("\n")))
-			if len(token) != 0 {
-				newMessage.PackageDependencies = append(newMessage.PackageDependencies, string(token))
-			}
-			break
-		}
+	commandToken, err := buf.ReadString(byte('|'))
+	if err != nil {
+		return nil, err
 	}
+	commandToken = strings.TrimRight(commandToken, "|")
+	newMessage.Command = commandToken
+
+	packageToken, err := buf.ReadString(byte('|'))
+	if err != nil {
+		return nil, err
+	}
+	packageToken = strings.TrimRight(packageToken, "|")
+	newMessage.PackageName = packageToken
+
+	var depBuf bytes.Buffer
+	dependencyToken, err := buf.ReadString(byte('\n'))
+	if err != nil {
+		return nil, err
+	}
+	depBuf.WriteString(dependencyToken)
+	for {
+		token, err := depBuf.ReadString(byte(','))
+		token = strings.TrimSpace(strings.TrimRight(token, ","))
+
+		if err != nil {
+			if err == io.EOF {
+				if len(token) != 0 {
+					newMessage.PackageDependencies = append(newMessage.PackageDependencies, token)
+				}
+				break
+			}
+			return nil, err
+		}
+		newMessage.PackageDependencies = append(newMessage.PackageDependencies, token)
+	}
+
 	return newMessage, nil
 }

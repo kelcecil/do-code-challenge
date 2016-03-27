@@ -18,11 +18,7 @@ var (
 	sampleFour  string   = "QUERY|cloog|\n"
 	messageFour *Message = NewMessage("QUERY", "cloog", []string{})
 
-	brokenSampleOne  string   = "INDEX|cloog|bloob|gmp,isl,pkg-config\n"
-	brokenMessageOne *Message = NewMessage("INDEX", "cloog", []string{"gmp", "isl", "pkg-config"})
-
-	brokenSampleTwo  string   = "INDEX|cloog,apples|gmp,isl,pkg-config\n"
-	brokenMessageTwo *Message = NewMessage("INDEX", "cloog", []string{"gmp", "isl", "pkg-config"})
+	brokenSampleOne string = "INDEX|emacs+elisp\n"
 )
 
 func TestSampleFullMessages(t *testing.T) {
@@ -32,7 +28,7 @@ func TestSampleFullMessages(t *testing.T) {
 			t.Errorf("Parsing of message %v failed because: %v", sample, err.Error())
 		}
 		if !message.Equals(parsedMessage) {
-			message := fmt.Sprintf("%v -- %v", failureMessage, parsedMessage.String())
+			message := fmt.Sprintf("%v;Expected: %v,Got: %v", failureMessage, message.String(), parsedMessage.String())
 			t.Errorf(message)
 		}
 	}
@@ -53,16 +49,12 @@ func BenchmarkParseMessage(b *testing.B) {
 }
 
 func TestSampleBrokenMessages(t *testing.T) {
-	testMessage := func(sample string, message *Message, failureMessage string) {
-		parsedMessage, err := ParseMessage(sample)
-		if err != nil {
-			t.Errorf("Parsing of message %v failed because: %v", sample, err.Error())
-		}
-		if !message.Equals(parsedMessage) {
-			message := fmt.Sprintf("%v -- %v", failureMessage, parsedMessage.String())
-			t.Errorf(message)
+	testMessage := func(sample string, failureMessage string) {
+		_, err := ParseMessage(sample)
+		if err == nil {
+			t.Errorf("Parsing of message %v passed.", sample)
 		}
 	}
 
-	testMessage(brokenSampleOne, brokenMessageOne, "INDEX message with extra bars failed.")
+	testMessage(brokenSampleOne, "INDEX without ending bar succeeded.")
 }
