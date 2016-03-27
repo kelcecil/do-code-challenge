@@ -15,11 +15,11 @@ func NewReverseDependencyList() *ReverseDependencyList {
 }
 
 func (rdl *ReverseDependencyList) IsDependedOn() bool {
-	return len(rdl.Dependencies) != 0
+	return rdl.Len() != 0
 }
 
 func (rdl *ReverseDependencyList) IsDependedOnBy(pkgName string) bool {
-	i := sort.Search(len(rdl.Dependencies), func(i int) bool {
+	i := sort.Search(rdl.Len(), func(i int) bool {
 		return rdl.Dependencies[i].PackageName >= pkgName
 	})
 	if len(rdl.Dependencies) <= i {
