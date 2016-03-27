@@ -18,7 +18,9 @@ var (
 	sampleFour  string   = "QUERY|cloog|\n"
 	messageFour *Message = NewMessage("QUERY", "cloog", []string{})
 
-	brokenSampleOne string = "INDEX|emacs+elisp\n"
+	brokenSampleOne   string = "INDEX|emacs+elisp\n"
+	brokenSampleTwo   string = "INDEX\n"
+	brokenSampleThree string = "QUERY|cloog|"
 )
 
 func TestSampleFullMessages(t *testing.T) {
@@ -57,4 +59,6 @@ func TestSampleBrokenMessages(t *testing.T) {
 	}
 
 	testMessage(brokenSampleOne, "INDEX without ending bar succeeded.")
+	testMessage(brokenSampleTwo, "INDEX without immediately following bar succeeded.")
+	testMessage(brokenSampleThree, "No newline separator succeeded.")
 }

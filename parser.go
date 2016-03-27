@@ -34,18 +34,12 @@ func ParseMessage(rawMessage string) (*Message, error) {
 	for {
 		token, err := depBuf.ReadString(byte(','))
 		token = strings.TrimSpace(strings.TrimRight(token, ","))
-
-		if err != nil {
-			if err == io.EOF {
-				if len(token) != 0 {
-					newMessage.PackageDependencies = append(newMessage.PackageDependencies, token)
-				}
-				break
-			}
-			return nil, err
+		if len(token) != 0 {
+			newMessage.PackageDependencies = append(newMessage.PackageDependencies, token)
 		}
-		newMessage.PackageDependencies = append(newMessage.PackageDependencies, token)
+		if err == io.EOF {
+			break
+		}
 	}
-
 	return newMessage, nil
 }
