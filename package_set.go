@@ -25,10 +25,6 @@ func NewPackageSet() *PackageSet {
 }
 
 func (rs *PackageSet) FetchPackage(pkgName string) *Package {
-	if rs == nil {
-		return nil
-	}
-
 	rs.ReadWriteLock.RLock()
 	defer rs.ReadWriteLock.RUnlock()
 
@@ -45,10 +41,6 @@ func (rs *PackageSet) findPackage(packageName string) *Package {
 }
 
 func (rs *PackageSet) RemovePackage(pkgName string) error {
-	if rs == nil {
-		return nil
-	}
-
 	rs.ReadWriteLock.Lock()
 	defer rs.ReadWriteLock.Unlock()
 
