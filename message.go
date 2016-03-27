@@ -28,9 +28,6 @@ func NewMessage(cmd string, pkgName string, pkgDeps []string) *Message {
 }
 
 func (message *Message) String() string {
-	if message == nil {
-		return ""
-	}
 	return fmt.Sprintf("Command: %v, PackageName: %v, PackageDependencies %v\n",
 		message.Command, message.PackageName, message.PackageDependencies)
 }

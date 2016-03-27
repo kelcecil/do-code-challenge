@@ -11,6 +11,40 @@ func TestMessagesAreEqual(t *testing.T) {
 	}
 }
 
+func TestMessageCommandsAreDifferent(t *testing.T) {
+	left := NewMessage("WINDEX", "glide", []string{"golang", "git", "hg"})
+	right := NewMessage("INDEX", "glide", []string{"git", "hg", "golang"})
+
+	if left.Equals(right) {
+		t.Error("Message commands are different and should not be equal.")
+	}
+}
+
+func TestMessagePackagesAreDifferent(t *testing.T) {
+	left := NewMessage("INDEX", "slide", []string{"golang", "git", "hg"})
+	right := NewMessage("INDEX", "glide", []string{"git", "hg", "golang"})
+
+	if left.Equals(right) {
+		t.Error("Message packages are different and should not be equal.")
+	}
+}
+
+func TestPassingNilMessageShouldReturnFalse(t *testing.T) {
+	left := NewMessage("WINDEX", "slide", []string{"golang", "git", "hg"})
+	if left.Equals(nil) {
+		t.Error("Nil pointer for package should not be equal")
+	}
+}
+
+func TestMessageDependenciesAreDifferent(t *testing.T) {
+	left := NewMessage("INDEX", "glide", []string{"golang", "git", "hg"})
+	right := NewMessage("INDEX", "glide", []string{"git", "svn", "golang"})
+
+	if left.Equals(right) {
+		t.Error("Dependencies are different and should not match.")
+	}
+}
+
 func TestCompareOrderedStringArrays(t *testing.T) {
 	left := []string{"Golang", "Rust", "Crystal"}
 	right := []string{"Golang", "Rust", "Crystal"}
