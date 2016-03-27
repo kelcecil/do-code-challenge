@@ -1,4 +1,4 @@
-package main
+package pkg
 
 import (
 	"errors"
@@ -7,6 +7,8 @@ import (
 var (
 	DEPENDENCY_NOT_AVAILABLE = errors.New("Dependency is not available.")
 	REQUIRED_BY_OTHERS       = errors.New("Package is a dependency of other packages.")
+
+	packages *PackageSet = NewPackageSet()
 )
 
 type PackageSet struct {
@@ -22,8 +24,8 @@ func NewPackageSet() *PackageSet {
 }
 
 func (rs *PackageSet) FetchPackage(pkgName string) *Package {
-	pkg := rs.findPackage(pkgName)
-	return pkg
+	pack := rs.findPackage(pkgName)
+	return pack
 }
 
 func (rs *PackageSet) findPackage(packageName string) *Package {

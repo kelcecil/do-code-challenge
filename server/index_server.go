@@ -1,21 +1,19 @@
-package main
+package server
 
 import (
+	"github.com/kelcecil/do-code-challenge/message"
+	"github.com/kelcecil/do-code-challenge/parser"
 	"io"
 	"log"
 	"net"
 	"time"
 )
 
-var (
-	packages *PackageSet = NewPackageSet()
-)
-
 func StartServer(testMode bool, ready chan bool) {
 	log.Print("Starting server")
 
-	msgRouter := make(chan *Message, 1000)
-	go MessageRouter(msgRouter)
+	msgRouter := make(chan *message.Message, 1000)
+	go message.MessageRouter(msgRouter)
 
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
@@ -50,8 +48,8 @@ func StartServer(testMode bool, ready chan bool) {
 	}
 }
 
-func HandleConnection(conn net.Conn, msgRouter chan<- *Message) {
-	reader := NewMessageReader(conn)
+func HandleConnection(conn net.Conn, msgRouter chan<- *message.Message) {
+	reader := parser.NewMessageReader(conn)
 	for {
 		message, err := reader.Read()
 		if err == io.EOF {

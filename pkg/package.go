@@ -1,4 +1,4 @@
-package main
+package pkg
 
 type Package struct {
 	PackageName  string

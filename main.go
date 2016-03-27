@@ -1,6 +1,8 @@
 package main
 
+import "github.com/kelcecil/do-code-challenge/server"
+
 func main() {
 	ready := make(chan bool)
-	StartServer(false, ready)
+	server.StartServer(false, ready)
 }

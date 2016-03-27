@@ -1,4 +1,4 @@
-package main
+package message
 
 import (
 	"fmt"
@@ -49,14 +49,14 @@ func (left *Message) Equals(right *Message) bool {
 		return false
 	}
 
-	if !stringArraysAreEqual(left.PackageDependencies, right.PackageDependencies) {
+	if !StringArraysAreEqual(left.PackageDependencies, right.PackageDependencies) {
 		return false
 	}
 
 	return true
 }
 
-func stringArraysAreEqual(left []string, right []string) bool {
+func StringArraysAreEqual(left []string, right []string) bool {
 	if len(left) != len(right) {
 		return false
 	}

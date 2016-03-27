@@ -1,7 +1,8 @@
-package main
+package test
 
 import (
 	"bufio"
+	"github.com/kelcecil/do-code-challenge/server"
 	"net"
 	"strings"
 	"testing"
@@ -9,7 +10,7 @@ import (
 
 func TestMain(m *testing.M) {
 	ready := make(chan bool, 1)
-	go StartServer(true, ready)
+	go server.StartServer(true, ready)
 	defer func() { ready <- true }()
 	<-ready
 	m.Run()

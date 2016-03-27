@@ -13,4 +13,4 @@ clean:
 	rm -rf bin/
 
 test:
-	go test -v -bench . -cover
+	go test -v -bench . ./test

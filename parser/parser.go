@@ -1,8 +1,9 @@
-package main
+package parser
 
 import (
 	"bytes"
 	"errors"
+	"github.com/kelcecil/do-code-challenge/message"
 	"io"
 	"strings"
 )
@@ -22,7 +23,7 @@ func NewMessageReader(rdr io.Reader) MessageReader {
 	}
 }
 
-func (rdr *MessageReader) Read() (*Message, error) {
+func (rdr *MessageReader) Read() (*message.Message, error) {
 	readBytes := make([]byte, 4096)
 	for {
 		n, err := rdr.reader.Read(readBytes)
@@ -43,8 +44,8 @@ func (rdr *MessageReader) Read() (*Message, error) {
 	return message, nil
 }
 
-func ParseMessage(rawMessage string) (*Message, error) {
-	newMessage := NewEmptyMessage()
+func ParseMessage(rawMessage string) (*message.Message, error) {
+	newMessage := message.NewEmptyMessage()
 	var buf bytes.Buffer
 	buf.WriteString(rawMessage)
 

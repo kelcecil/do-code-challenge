@@ -1,6 +1,9 @@
-package main
+package test
 
-import "testing"
+import (
+	"github.com/kelcecil/do-code-challenge/pkg"
+	"testing"
+)
 
 func TestSimplePackageFetch(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
@@ -46,7 +49,7 @@ func TestPackageRemovalWithNonexistentPackage(t *testing.T) {
 func TestPackageRemovalWithDependentsFails(t *testing.T) {
 	packageSet := createNewPackageSetWithData()
 	err := packageSet.RemovePackage("golang")
-	if err != REQUIRED_BY_OTHERS {
+	if err != pkg.REQUIRED_BY_OTHERS {
 		t.Errorf("Expected REQUIRED_BY_OTHERS error; Got %v", err)
 	}
 }
@@ -97,7 +100,7 @@ func TestInsertNewPackageWithKnownBadDependencies(t *testing.T) {
 	if err == nil {
 		t.Errorf("Inserting with known bad deps should not have happened")
 	}
-	if err != DEPENDENCY_NOT_AVAILABLE {
+	if err != pkg.DEPENDENCY_NOT_AVAILABLE {
 		t.Errorf("Expected: DEPENDENCY_NOT_AVAILABLE error; Got: %v", err)
 	}
 }
@@ -178,10 +181,10 @@ func BenchmarkFetchPackage(b *testing.B) {
 	}
 }
 
-func createNewPackageSetWithData() *PackageSet {
+func createNewPackageSetWithData() *pkg.PackageSet {
 	packages := []string{"homebrew", "golang", "golo", "sdl"}
 
-	packageSet := NewPackageSet()
+	packageSet := pkg.NewPackageSet()
 	for i := range packages {
 		packageSet.InsertPackage(packages[i])
 	}

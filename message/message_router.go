@@ -1,4 +1,12 @@
-package main
+package message
+
+import (
+	"github.com/kelcecil/do-code-challenge/pkg"
+)
+
+var (
+	packages *pkg.PackageSet = pkg.NewPackageSet()
+)
 
 func MessageRouter(messages <-chan *Message) {
 	for {

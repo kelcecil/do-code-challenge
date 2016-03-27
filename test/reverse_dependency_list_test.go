@@ -1,6 +1,7 @@
-package main
+package test
 
 import (
+	"github.com/kelcecil/do-code-challenge/pkg"
 	"testing"
 )
 
@@ -20,7 +21,7 @@ func TestInsertDependencyIntoList(t *testing.T) {
 func TestRemoveDependencyFromList(t *testing.T) {
 	rdl := createReverseDependencyList()
 
-	rdl.RemoveDependency(NewPackage("golang"))
+	rdl.RemoveDependency(pkg.NewPackage("golang"))
 	countDependencies := len(rdl.Dependencies)
 	pkgName := rdl.Dependencies[0].PackageName
 
@@ -30,11 +31,11 @@ func TestRemoveDependencyFromList(t *testing.T) {
 	}
 }
 
-func createReverseDependencyList() *ReverseDependencyList {
-	rdl := NewReverseDependencyList()
+func createReverseDependencyList() *pkg.ReverseDependencyList {
+	rdl := pkg.NewReverseDependencyList()
 
-	golang := NewPackage("golang")
-	glide := NewPackage("glide")
+	golang := pkg.NewPackage("golang")
+	glide := pkg.NewPackage("glide")
 	rdl.InsertNewDependency(golang)
 	rdl.InsertNewDependency(glide)
 	return rdl
@@ -42,7 +43,7 @@ func createReverseDependencyList() *ReverseDependencyList {
 
 func TestNoDuplicate(t *testing.T) {
 	rdl := createReverseDependencyList()
-	if rdl.InsertNewDependency(NewPackage("golang")) {
+	if rdl.InsertNewDependency(pkg.NewPackage("golang")) {
 		t.Error("Duplicate dependency entry should not be allowed.")
 	}
 }
