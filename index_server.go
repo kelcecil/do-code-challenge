@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"time"
 )
 
 var (
@@ -34,13 +35,18 @@ func StartServer(testMode bool, ready chan bool) {
 		default:
 		}
 
+		if listener, ok := listener.(*net.TCPListener); ok {
+			listener.SetDeadline(time.Now().Add(5 * time.Second))
+		}
+
 		log.Print("Waiting for connection")
 		connection, err := listener.Accept()
-
-		log.Print("Accepted connection")
 		if err != nil {
-			panic(err)
+			if err.(*net.OpError).Timeout() {
+				continue
+			}
 		}
+		log.Print("Accepted connection")
 
 		go HandleConnection(connection, msgRouter)
 	}
