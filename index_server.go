@@ -43,7 +43,6 @@ func StartServer(testMode bool, ready chan bool) {
 		}
 
 		go HandleConnection(connection, msgRouter)
-
 	}
 }
 
@@ -58,7 +57,12 @@ func HandleConnection(conn net.Conn, msgRouter chan<- *Message) {
 		} else if err != nil {
 			log.Print(err)
 		}
-		message, _ := ParseMessage(line)
+		log.Print(line)
+		message, err := ParseMessage(line)
+		if err != nil {
+			_, err = conn.Write([]byte("ERROR\n"))
+			continue
+		}
 		msgRouter <- message
 		log.Print("Reading response")
 		response := <-message.Response
