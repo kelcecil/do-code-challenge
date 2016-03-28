@@ -39,7 +39,7 @@ func StartServer(testMode bool, ready chan bool) {
 
 		// Set a deadline for accept so that we can check for signals
 		if listener, ok := listener.(*net.TCPListener); ok {
-			listener.SetDeadline(time.Now().Add(5 * time.Second))
+			listener.SetDeadline(time.Now().Add(30 * time.Second))
 		}
 
 		connection, err := listener.Accept()
