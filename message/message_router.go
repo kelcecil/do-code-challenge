@@ -26,27 +26,30 @@ func MessageRouter(messages <-chan *Message) {
 	}
 }
 
-func index(msg *Message) {
-	err := packages.InsertPackage(msg.PackageName, msg.PackageDependencies...)
-	if err == nil {
-		msg.Response <- "OK"
-	} else {
-		msg.Response <- "FAIL"
+type CommandFunc func(*Message)
+
+func createCommandResponseFunc(method func(msg *Message) interface{}) CommandFunc {
+	return func(msg *Message) {
+		output := method(msg)
+		if output == nil {
+			msg.Response <- "OK"
+		} else {
+			msg.Response <- "FAIL"
+		}
 	}
 }
+
+var index = createCommandResponseFunc(func(msg *Message) interface{} {
+	return packages.InsertPackage(msg.PackageName, msg.PackageDependencies...)
+})
+
+var remove = createCommandResponseFunc(func(msg *Message) interface{} {
+	return packages.RemovePackage(msg.PackageName)
+})
 
 func query(msg *Message) {
 	pkg := packages.FetchPackage(msg.PackageName)
 	if pkg != nil {
-		msg.Response <- "OK"
-	} else {
-		msg.Response <- "FAIL"
-	}
-}
-
-func remove(msg *Message) {
-	err := packages.RemovePackage(msg.PackageName)
-	if err == nil {
 		msg.Response <- "OK"
 	} else {
 		msg.Response <- "FAIL"
