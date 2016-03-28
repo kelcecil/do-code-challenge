@@ -1,5 +1,6 @@
-# do-code-challenge
-## Design Document
+# do-code-challenge Design Document
+
+## Overview
 
 ### Objective
 
@@ -28,3 +29,44 @@ There are three possible responses to commands: OK, FAIL, and ERROR. OK and FAIL
 ERROR is returned if the command isn't recognized or there is a problem with the request.
 
 All responses are terminated with the newline character (e.g. `OK\n`, `FAIL\n`, `ERROR\n`).
+
+### Requirements
+
+Go 1.6 or newer, make
+
+### Building and Running
+
+Building and run included tests by running `make`. There are also separate make targets for building (`make build`) and running the included tests (`make test`).
+
+A Dockerfile is also provided to build and run tests on the indexer and create a container from the result binary:
+
+`docker build -t indexer .`
+
+`docker run --rm indexer`
+
+## Design
+
+### Package Overview
+The indexer is divided into several packages:
+* message
+  * This is code that deals with the convenience of creation and the handling of messages (think the newline delimited protocol.)
+* parser
+  * This package handles parsing the text protocol and creating messages from the reading.
+* pkg
+  * This package contains structures and operations that deal with packages.
+  * `package_set.go` specifically holds methods related to working with the package store.
+  * `reverse_dependency_list.go` holds a struct and functions that aid in determining if dependencies are associated with packages.
+* server
+  * This packages handles the TCP server.
+* test
+  * This packages holds all unit and integration tests for the indexer.
+
+### Accepting Connections
+
+The application begins by creating a TCP server using Go's `net` library and beginning to listen for connections. We set a periodic timeout on `listener.Accept()` to check for signals such as SIGTERM (which Docker will send on a first attempt to stop a container) so that we can handle a server stop gracefully. New connections are spawned into a Go routine to be handled by `HandleConnection`.
+
+Connection draining was considered to be added here but was decided against. Draining makes sense when dealing with light weight APIs that make calls to stateless applications to avoid interrupting existing calls when closing. This protocol establishes and holds a connection for the life of the session thus would probably hold a connection longer than a REST API call; A Docker container would, in most cases, likely receive SIGKILL long before the connections would be drained.
+
+### Parsing Message
+
+The first step after establishing the connection is to read input from the client and parse. This is handled by the MessageReader in `parser.go`. The MessageReader reads 4096 bytes from the client at a time (as opposed to using `ReadString('\n')` to read until a newline terminator) to allow for us to inspect and determine if a client is just sending nonsense to attempt to overflow or cause a panic; This overflow check has not been added as a maximum message size was not defined in the problem description but could easily be added if one was provided.
