@@ -12,4 +12,6 @@ RUN curl -O https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz && \
   cd /gopath/src/github.com/kelcecil/do-code-challenge && \
   make && make install && \
   rm -rf /usr/local/go
+RUN useradd server
+USER server
 ENTRYPOINT ["index_server"]
