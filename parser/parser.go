@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	EOL error = errors.New("Reader is closed and reader buffer is exhausted.")
+	PARSE_FAILED error = errors.New("Parsing of message failed.")
 )
 
 type MessageReader struct {
@@ -36,7 +36,7 @@ func (rdr *MessageReader) Read() (*message.Message, error) {
 		}
 	}
 
-	line, err := rdr.buf.ReadString(byte('\n'))
+	line, _ := rdr.buf.ReadString(byte('\n'))
 	message, err := ParseMessage(line)
 	if err != nil {
 		return nil, err
@@ -51,14 +51,14 @@ func ParseMessage(rawMessage string) (*message.Message, error) {
 
 	commandToken, err := buf.ReadString(byte('|'))
 	if err != nil {
-		return nil, err
+		return nil, PARSE_FAILED
 	}
 	commandToken = strings.TrimRight(commandToken, "|")
 	newMessage.Command = commandToken
 
 	packageToken, err := buf.ReadString(byte('|'))
 	if err != nil {
-		return nil, err
+		return nil, PARSE_FAILED
 	}
 	packageToken = strings.TrimRight(packageToken, "|")
 	newMessage.PackageName = packageToken
@@ -66,7 +66,7 @@ func ParseMessage(rawMessage string) (*message.Message, error) {
 	var depBuf bytes.Buffer
 	dependencyToken, err := buf.ReadString(byte('\n'))
 	if err != nil {
-		return nil, err
+		return nil, PARSE_FAILED
 	}
 	depBuf.WriteString(dependencyToken)
 	for {

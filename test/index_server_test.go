@@ -56,3 +56,8 @@ func TestIntegrationScenarioOne(t *testing.T) {
 	expect(t, "REMOVE|glide|", "OK", "A package with no dependents failed to be removed.")
 	expect(t, "REMOVE|golang|", "OK", "A package with no CURRENT dependents failed to be removed.")
 }
+
+func TestIntegrationScenarioTwo(t *testing.T) {
+	// Broken message
+	expect(t, "INDEX|emacs☃elisp", "ERROR", "A query that should have errored did not.")
+}
