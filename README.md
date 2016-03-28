@@ -46,7 +46,7 @@ A Dockerfile is also provided to build and run tests on the indexer and create a
 
 ## Design
 
-### Package Overview
+### Packages
 The indexer is divided into several packages:
 * message
   * This is code that deals with the convenience of creation and the handling of messages (think the newline delimited protocol.)
@@ -70,3 +70,17 @@ Connection draining was considered to be added here but was decided against. Dra
 ### Parsing Message
 
 The first step after establishing the connection is to read input from the client and parse. This is handled by the MessageReader in `parser.go`. The MessageReader reads 4096 bytes from the client at a time (as opposed to using `ReadString('\n')` to read until a newline terminator) to allow for us to inspect and determine if a client is just sending nonsense to attempt to overflow or cause a panic; This overflow check has not been added as a maximum message size was not defined in the problem description but could easily be added if one was provided.
+
+The input from the client is added to a buffer until a newline (`\n`) is found. The buffer is then sent to the `ParseMessage` function in `parser.go` to be parsed. byte.buffer's `ReadString()` function is used extensively here since we now have a buffer of known size (and to keep the parsing code simple.) Situations where tokens are missing unexpectedly return an `error` stating such. A successful parsing returns a `*message.Message` that is returned to be sent down a channel to the `message.MessageRouter`.
+
+### Message Router
+
+Our parsed message is sent via buffered channel to the `message.MessageRouter`. The MessageRouter's responsibility is to direct the messages for commands to the correct function for interacting with the `pkg.PackageSet`. The MessageRouter likewise takes the result from these functions and translates to what the web server will return to the client (`OK`,`FAIL`, and `ERROR`).
+
+### Interacting with the Package Set
+
+The Package Set is the structure in which the state of the index is kept. The structure consists of two standard Go maps. One map uses the package name as a string as a key and Package objects as values. Package structs contains the package name and an array of pointers to Package objects representing the dependencies of the package. The second map keeps a structure called a Reverse Dependency List (`reverse_dependency_list.go`) which is an array of packages with helpful functions to assess packages that depend on a certain package.
+
+Maps were chosen for storage over arrays using binary search (using Go's `sort.Search()` and implementing the `Sort` interface) because of the reduced average case complexity for inserts (amortized O(1) vs O(log n), search (amortized O(1) vs O(log n), and equal storage complexity (O(n) for both.) Arrays are still used for `ReverseDependencyList` and others as array performance using binary search can be better for a small number of items (see: http://www.darkcoding.net/software/go-slice-search-vs-map-lookup/).
+
+The `MessageRouter` calls the receiver methods of the `PackageSet` to execute the command provided by the `Messages`. The results are returned to the `MessageRouter` and returned to the `HandleConnection` function through a channel that is included with every message to send the result back to the proper Go routine to be returned to the client.
