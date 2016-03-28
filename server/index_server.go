@@ -1,12 +1,13 @@
 package server
 
 import (
-	"github.com/kelcecil/do-code-challenge/message"
-	"github.com/kelcecil/do-code-challenge/parser"
 	"io"
 	"log"
 	"net"
 	"time"
+
+	"github.com/kelcecil/do-code-challenge/message"
+	"github.com/kelcecil/do-code-challenge/parser"
 )
 
 // Test mode and ready is to let the integration tests
@@ -48,6 +49,7 @@ func StartServer(testMode bool, ready chan bool) {
 				continue
 			}
 		}
+		log.Print("Accepted new connection.")
 
 		go HandleConnection(connection, msgRouter)
 	}
@@ -58,6 +60,7 @@ func HandleConnection(conn net.Conn, msgRouter chan<- *message.Message) {
 	for {
 		message, err := reader.Read()
 		if err == io.EOF {
+			log.Print("Closing connection.")
 			conn.Close()
 			break
 		} else if err != nil {
