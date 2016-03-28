@@ -7,8 +7,6 @@ import (
 var (
 	DEPENDENCY_NOT_AVAILABLE = errors.New("Dependency is not available.")
 	REQUIRED_BY_OTHERS       = errors.New("Package is a dependency of other packages.")
-
-	packages *PackageSet = NewPackageSet()
 )
 
 type PackageSet struct {
@@ -24,12 +22,7 @@ func NewPackageSet() *PackageSet {
 }
 
 func (rs *PackageSet) FetchPackage(pkgName string) *Package {
-	pack := rs.findPackage(pkgName)
-	return pack
-}
-
-func (rs *PackageSet) findPackage(packageName string) *Package {
-	pkg, ok := rs.Packages[packageName]
+	pkg, ok := rs.Packages[pkgName]
 	if !ok {
 		return nil
 	}
@@ -37,7 +30,7 @@ func (rs *PackageSet) findPackage(packageName string) *Package {
 }
 
 func (rs *PackageSet) RemovePackage(pkgName string) error {
-	checkPackage := rs.findPackage(pkgName)
+	checkPackage := rs.FetchPackage(pkgName)
 	if checkPackage == nil {
 		return nil
 	}
@@ -65,7 +58,7 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 		return DEPENDENCY_NOT_AVAILABLE
 	}
 
-	if rs.findPackage(pkgName) == nil {
+	if rs.FetchPackage(pkgName) == nil {
 		rs.ReverseDependencies[pkgName] = NewReverseDependencyList()
 
 		newPackage := NewPackage(pkgName, depPackages...)
@@ -81,7 +74,7 @@ func (rs *PackageSet) InsertPackage(pkgName string, dependencies ...string) erro
 func (rs *PackageSet) FindRequiredDependencies(dependencies ...string) (foundDependencies []*Package, noMissingDeps bool) {
 	noMissingDeps = true
 	for i := range dependencies {
-		Package := rs.findPackage(dependencies[i])
+		Package := rs.FetchPackage(dependencies[i])
 		if Package != nil {
 			foundDependencies = append(foundDependencies, Package)
 		} else {
