@@ -42,7 +42,11 @@ A Dockerfile is also provided to build and run tests on the indexer and create a
 
 `docker build -t indexer .`
 
-`docker run --rm indexer`
+If you'd like a randomly selected high port based on the Dockerfile's EXPOSE instruction:
+`docker run -d -P indexer`
+
+If you'd like to select the exposed port yourself:
+`docker run -d -p <yourPreferredPort>:8080 indexer`
 
 ## Design
 
