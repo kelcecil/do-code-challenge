@@ -61,3 +61,9 @@ func TestIntegrationScenarioTwo(t *testing.T) {
 	// Broken message
 	expect(t, "INDEX|emacs☃elisp", "ERROR", "A query that should have errored did not.")
 }
+
+func TestIntegrationScenarioThree(t *testing.T) {
+	expect(t, "INDEX|golo|java", "FAIL", "A required dependency doesn't exist.")
+	expect(t, "INDEX|java|", "OK", "Failed to insert a package without deps.")
+	expect(t, "INDEX|golo|java", "OK", "Failed to insert a pkg after dep is indexed.")
+}
