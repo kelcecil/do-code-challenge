@@ -71,11 +71,11 @@ Connection draining was considered to be added here but was decided against. Dra
 
 The first step after establishing the connection is to read input from the client and parse. This is handled by the MessageReader in `parser.go`. The MessageReader reads 4096 bytes from the client at a time (as opposed to using `ReadString('\n')` to read until a newline terminator) to allow for us to inspect and determine if a client is just sending nonsense to attempt to overflow or cause a panic; This overflow check has not been added as a maximum message size was not defined in the problem description but could easily be added if one was provided.
 
-The input from the client is added to a buffer until a newline (`\n`) is found. The buffer is then sent to the `ParseMessage` function in `parser.go` to be parsed. byte.buffer's `ReadString()` function is used extensively here since we now have a buffer of known size (and to keep the parsing code simple.) Situations where tokens are missing unexpectedly return an `error` stating such. A successful parsing returns a `*message.Message` that is returned to be sent down a channel to the `message.MessageRouter`.
+The input from the client is added to a buffer until a newline (`\n`) is found. The buffer is then sent to the `ParseMessage` function in `parser.go` to be parsed. byte.buffer's `ReadString()` function is used extensively here since we now have a buffer of known size (and to keep the parsing code simple.) Situations where tokens are missing unexpectedly return an `error` stating such. A successful parsing returns a pointer to a `Message` that is returned to be sent down a buffered channel to our next topic.
 
 ### Message Router
 
-Our parsed message is sent via buffered channel to the `message.MessageRouter`. The MessageRouter's responsibility is to direct the messages for commands to the correct function for interacting with the `pkg.PackageSet`. The MessageRouter likewise takes the result from these functions and translates to what the web server will return to the client (`OK`,`FAIL`, and `ERROR`).
+Our parsed message is sent via buffered channel to the `MessageRouter`. The MessageRouter's responsibility is to direct the messages for commands to the correct function for interacting with the `PackageSet`. The MessageRouter likewise takes the result from these functions and translates to what the web server will return to the client (`OK`,`FAIL`, and `ERROR`).
 
 ### Interacting with the Package Set
 
