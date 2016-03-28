@@ -10,18 +10,15 @@ var (
 
 func MessageRouter(messages <-chan *Message) {
 	for {
-		select {
-		case msg := <-messages:
-			if msg.Command == "INDEX" {
-				index(msg)
-			} else if msg.Command == "QUERY" {
-				query(msg)
-			} else if msg.Command == "REMOVE" {
-				remove(msg)
-			} else {
-				unknown(msg)
-			}
-		default:
+		msg := <-messages
+		if msg.Command == "INDEX" {
+			index(msg)
+		} else if msg.Command == "QUERY" {
+			query(msg)
+		} else if msg.Command == "REMOVE" {
+			remove(msg)
+		} else {
+			unknown(msg)
 		}
 	}
 }
