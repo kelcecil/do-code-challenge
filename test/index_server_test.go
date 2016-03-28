@@ -60,6 +60,7 @@ func TestIntegrationScenarioOne(t *testing.T) {
 func TestIntegrationScenarioTwo(t *testing.T) {
 	// Broken message
 	expect(t, "INDEX|emacs☃elisp", "ERROR", "A query that should have errored did not.")
+	expect(t, "WAT|morewat|", "ERROR", "A made up command should return error.")
 }
 
 func TestIntegrationScenarioThree(t *testing.T) {
