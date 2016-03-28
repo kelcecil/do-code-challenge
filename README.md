@@ -38,6 +38,8 @@ Go 1.6 or newer, make
 
 Build and run included tests by running `make`. There are also separate make targets for building (`make build`) and running the included tests (`make test`).
 
+Note that this program *must* be built *outside* of the GOPATH to allow for a multipackage program (like this one) to use relative import paths. Relative paths are not allowed inside the GOPATH to avoid ambiguity, but a remote import path would have personally identifiable information that would violate one of the submissions requirements. More information can be found at: https://golang.org/cmd/go/#hdr-Relative_import_paths
+
 A Dockerfile is also provided to build and run tests on the indexer and create a container from the result binary:
 
 `docker build -t indexer .`
