@@ -36,7 +36,7 @@ Go 1.6 or newer, make
 
 ### Building and Running
 
-Building and run included tests by running `make`. There are also separate make targets for building (`make build`) and running the included tests (`make test`).
+Build and run included tests by running `make`. There are also separate make targets for building (`make build`) and running the included tests (`make test`).
 
 A Dockerfile is also provided to build and run tests on the indexer and create a container from the result binary:
 
