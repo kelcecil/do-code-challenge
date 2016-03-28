@@ -1,8 +1,9 @@
 package test
 
 import (
-	"github.com/kelcecil/do-code-challenge/pkg"
 	"testing"
+
+	"../pkg"
 )
 
 func TestSimplePackageFetch(t *testing.T) {

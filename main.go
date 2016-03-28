@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/kelcecil/do-code-challenge/server"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"./server"
 )
 
 func main() {

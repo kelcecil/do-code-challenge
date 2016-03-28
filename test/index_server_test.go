@@ -2,10 +2,11 @@ package test
 
 import (
 	"bufio"
-	"github.com/kelcecil/do-code-challenge/server"
 	"net"
 	"strings"
 	"testing"
+
+	"../server"
 )
 
 func TestMain(m *testing.M) {

@@ -2,9 +2,10 @@ package test
 
 import (
 	"fmt"
-	"github.com/kelcecil/do-code-challenge/message"
-	"github.com/kelcecil/do-code-challenge/parser"
 	"testing"
+
+	"../message"
+	"../parser"
 )
 
 var (

@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/kelcecil/do-code-challenge/message"
-	"github.com/kelcecil/do-code-challenge/parser"
+	"../message"
+	"../parser"
 )
 
 // Test mode and ready is to let the integration tests

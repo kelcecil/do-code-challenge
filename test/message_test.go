@@ -1,8 +1,9 @@
 package test
 
 import (
-	"github.com/kelcecil/do-code-challenge/message"
 	"testing"
+
+	"../message"
 )
 
 func TestMessagesAreEqual(t *testing.T) {

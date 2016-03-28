@@ -1,7 +1,7 @@
 package message
 
 import (
-	"github.com/kelcecil/do-code-challenge/pkg"
+	"../pkg"
 )
 
 var (

@@ -3,9 +3,10 @@ package parser
 import (
 	"bytes"
 	"errors"
-	"github.com/kelcecil/do-code-challenge/message"
 	"io"
 	"strings"
+
+	"../message"
 )
 
 var (

@@ -1,9 +1,10 @@
 package test
 
 import (
-	"github.com/kelcecil/do-code-challenge/message"
-	"github.com/kelcecil/do-code-challenge/parser"
 	"testing"
+
+	"../message"
+	"../parser"
 )
 
 type MockConnectionReader struct {
