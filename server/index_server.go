@@ -4,16 +4,22 @@ import (
 	"io"
 	"log"
 	"net"
+	"sync"
 	"time"
 
 	"../message"
 	"../parser"
 )
 
+var (
+	activeConnections sync.WaitGroup = sync.WaitGroup{}
+)
+
 // Test mode and ready is to let the integration tests
 // know that we're ready to begin.
 func StartServer(testMode bool, ready chan bool) {
-	msgRouter := make(chan *message.Message, 1000)
+
+	msgRouter := make(chan *message.Message, 100)
 	go message.MessageRouter(msgRouter)
 
 	listener, err := net.Listen("tcp", ":8080")
@@ -34,6 +40,7 @@ func StartServer(testMode bool, ready chan bool) {
 		case <-ready:
 			log.Print("Received SIGTERM. Qutting...")
 			listener.Close()
+			activeConnections.Wait()
 			return
 		default:
 		}
@@ -49,19 +56,22 @@ func StartServer(testMode bool, ready chan bool) {
 				continue
 			}
 		}
-		log.Print("Accepted new connection.")
+		activeConnections.Add(1)
 
 		go HandleConnection(connection, msgRouter)
 	}
 }
 
 func HandleConnection(conn net.Conn, msgRouter chan<- *message.Message) {
+	log.Printf("Connection open.")
 	reader := parser.NewMessageReader(conn)
 	for {
+		conn.SetDeadline(time.Now().Add(30 * time.Second))
 		message, err := reader.Read()
 		if err == io.EOF {
-			log.Print("Closing connection.")
+			log.Printf("Closing connection")
 			conn.Close()
+			activeConnections.Done()
 			break
 		} else if err != nil {
 			_, err = conn.Write([]byte("ERROR\n"))
