@@ -69,9 +69,7 @@ The indexer is divided into several packages:
 
 ### Accepting Connections
 
-The application begins by creating a TCP server using Go's `net` library and beginning to listen for connections. We set a periodic timeout on `listener.Accept()` to check for signals such as SIGTERM (which Docker will send on a first attempt to stop a container) so that we can handle a server stop gracefully. New connections are spawned into a Go routine to be handled by `HandleConnection`.
-
-Connection draining was considered to be added here but was decided against. Draining makes sense when dealing with light weight APIs that make calls to stateless applications to avoid interrupting existing calls when closing. This protocol establishes and holds a connection for the life of the session thus would probably hold a connection longer than a REST API call; A Docker container would, in most cases, likely receive SIGKILL long before the connections would be drained.
+The application begins by creating a TCP server using Go's `net` library and beginning to listen for connections. We set a periodic timeout on `listener.Accept()` to check for signals such as SIGTERM (which Docker will send on a first attempt to stop a container) so that we can handle a server stop gracefully by *attempting* to allow existing connections to finish; Docker will send a SIGKILL after a configurable amount of time following the SIGTERM signal if the process hasn't terminated and thus will interrupt remaining connections. New connections are spawned into a Go routine to be handled by `HandleConnection`.
 
 ### Parsing Message
 
